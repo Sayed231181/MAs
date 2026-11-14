@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MBS Ekspedisi 2026</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0b2545"><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ctext y='.9em' font-size='9'%3E%F0%9F%9A%9A%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#eef1f4;--cd:#fff;--tx:#14212b;--mu:#5d6b78;--nv:#0b2545;--am:#f5a524;--bd:#d6dde3;--bad:#b42318;--ok:#067647;color-scheme:light}
+:root:not([data-theme="light"]){}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d141b;--cd:#16212b;--tx:#e6edf3;--mu:#92a3b3;--bd:#27343f;--bad:#f97066;--ok:#47cd89;--nv:#08182d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d141b;--cd:#16212b;--tx:#e6edf3;--mu:#92a3b3;--bd:#27343f;--bad:#f97066;--ok:#47cd89;--nv:#08182d;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 "Bahnschrift","Segoe UI",system-ui,sans-serif;padding:env(safe-area-inset-top,0px) 0 calc(76px + env(safe-area-inset-bottom,0px))}
+header{background:var(--nv);color:#fff;padding:12px 14px 14px;position:sticky;top:0;z-index:5}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+h1{font-size:17px;margin:0;font-weight:600}#st{font-size:12px;color:#cfd9e4}
+.ctl{display:flex;gap:8px}
+select,input,textarea{font:inherit;color:inherit}
+header select{flex:1;min-width:0;background:#ffffff18;color:#fff;border:1px solid #ffffff55;border-radius:8px;padding:8px}header option{color:#000}
+main{padding:12px 14px;max-width:640px;margin:0 auto}
+.sum{background:var(--nv);color:#fff;border-radius:12px;padding:14px;margin-bottom:12px}
+.sum .big{font-size:28px;font-weight:700;color:var(--am);line-height:1.1}
+.sum .g{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:10px;font-size:13px;color:#cfd9e4}.sum b{color:#fff;font-weight:600}
+.cd{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;margin-bottom:8px}
+.r{display:flex;justify-content:space-between;gap:8px}.mu{color:var(--mu);font-size:13px}.g2{margin:6px 0;padding-top:6px;border-top:1px solid var(--bd)}
+.bad{color:var(--bad)}.ok{color:var(--ok)}.empty{text-align:center;color:var(--mu);padding:36px 10px}
+.pl{background:var(--cd);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:10px;font:inherit;width:100%;margin-bottom:8px}
+h2{font-size:15px;margin:16px 0 8px}
+.ln{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.ln input{width:150px;text-align:right;padding:7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd)}
+.ln.t{font-weight:700;border:0}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--cd);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;background:none;border:0;padding:14px 2px;font:inherit;font-size:13px;color:var(--mu)}nav button.on{color:var(--tx);font-weight:700;box-shadow:inset 0 3px var(--am)}
+.fab{position:fixed;right:16px;bottom:calc(72px + env(safe-area-inset-bottom,0px));width:54px;height:54px;border-radius:27px;border:0;background:var(--am);color:#1b1200;font-size:30px;box-shadow:0 3px 10px #0004}
+dialog{border:0;border-radius:16px 16px 0 0;padding:16px;width:100%;max-width:640px;margin:auto auto 0;background:var(--cd);color:var(--tx);max-height:92vh}dialog::backdrop{background:#0008}
+label{display:block;font-size:13px;color:var(--mu);margin:8px 0 3px}
+dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pv{background:var(--bg);border-radius:8px;padding:10px;margin:12px 0;font-size:14px}
+.btns{display:flex;gap:8px}.btns button{flex:1;padding:12px;border-radius:8px;border:1px solid var(--bd);font:inherit;background:var(--bg);color:var(--tx)}.btns .p{background:var(--nv);color:#fff;border:0;font-weight:600;flex:2}
+#toast{position:fixed;left:14px;right:14px;bottom:calc(130px + env(safe-area-inset-bottom,0px));background:#14212b;color:#fff;padding:10px 12px;border-radius:8px;display:none;z-index:9}
+</style></head><body>
+<header><div class="top"><h1>MBS Ekspedisi 2026</h1><span id="st"></span></div>
+<div class="ctl" id="ctl"><select id="sb"></select><select id="sh"><option value="1">Tgl 1–15</option><option value="2">Tgl 16–akhir</option></select></div></header>
+<main id="app"></main><div id="toast"></div>
+<button class="fab" id="fab" onclick="S.tab=='bms'?openG():openF()" aria-label="Tambah">+</button>
+<nav><button id="n_bmr" onclick="tab('bmr')">Pengiriman</button><button id="n_bms" onclick="tab('bms')">Keuangan</button><button id="n_lap" onclick="tab('lap')">Laporan</button><button id="n_bak" onclick="tab('bak')">Cadangan</button></nav>
+<dialog id="lg" oncancel="event.preventDefault()"><b>Masuk</b><label>Email</label><input id="l_em" type="email" autocomplete="username"><label>Kata sandi</label><input id="l_pw" type="password" autocomplete="current-password"><div id="l_err" class="bad" style="margin-top:8px"></div><div class="btns" style="margin-top:14px"><button class="p" onclick="masuk()">Masuk</button></div></dialog>
+<dialog id="dlg"><b id="ft"></b>
+<label>Tanggal</label><input type="date" id="f_tgl">
+<label>Merek – jenis pakan</label><input id="f_merek" list="dm">
+<div class="two"><div><label>Pengirim</label><input id="f_pengirim" list="dt"></div><div><label>Tujuan</label><input id="f_tujuan" list="dt"></div></div>
+<div class="two"><div><label>Plat mobil</label><input id="f_plat" list="dp" oninput="autoS()"></div><div><label>Nama sopir</label><input id="f_sopir"></div></div>
+<div class="two"><div><label>Jumlah karung</label><input type="number" inputmode="decimal" id="f_karung" oninput="prev()"></div><div><label>Harga per kg (Rp)</label><input type="number" inputmode="decimal" id="f_harga" oninput="prev()"></div></div>
+<div class="two"><div><label>Biaya mutasi (Rp)</label><input type="number" inputmode="decimal" id="f_mutasi" oninput="prev()"></div><div><label>Pembayaran (Rp)</label><input type="number" inputmode="decimal" id="f_bayar" oninput="prev()"></div></div>
+<label>Keterangan</label><input id="f_ket"><div class="pv" id="pv"></div>
+<div class="btns"><button id="del" onclick="hapus()">Hapus</button><button onclick="dlg.close()">Batal</button><button class="p" onclick="simpan()">Simpan</button></div>
+<datalist id="dm"></datalist><datalist id="dt"></datalist><datalist id="dp"></datalist></dialog>
+<dialog id="dg"><b id="gt"></b>
+<label>Tanggal (boleh kosong)</label><input type="date" id="g_tgl">
+<label>Jenis</label><select id="g_jenis"></select>
+<label>Keterangan</label><input id="g_ket">
+<label>Jumlah (Rp)</label><input type="number" inputmode="decimal" id="g_jumlah">
+<div class="btns" style="margin-top:14px"><button id="gdel" onclick="hapusG()">Hapus</button><button onclick="dg.close()">Batal</button><button class="p" onclick="simpanG()">Simpan</button></div></dialog>
+<script>
+const BLN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const MEREK="Phokpan - B511F|Phokpan - B511|Phokpan - B512G|New Hope - BPS|New Hope - B11A|New Hope - B12A|Malindo - BR|Malindo - 8201|Malindo - 8202|Malindo - 9203|Indojaya - BR 0 GE|Indojaya - BR 1 GE|Indojaya - BR 2 GE|Mabar - 810|Mabar - 811C|Mabar - 812|Gold Coin - 200C|Gold Coin - 201C|Gold Coin - 202".split("|");
+const PLAT=[["BK 8323 FB","BG MUN"],["BK 8075 NB","Beuna Jaya"],["BK 8323 CG","ZIAN"],["BK 8344 BT","usman"],["BK 8679 GF","heri"],["BK 8591 GR","Akmal"],["BK 8551 GC","Tulang"],["BL 8808 JK","Dhonalwi"],["BL 8659 ZT","Syarifuddin"],["BL 8546 PF","zamzami"],["BL 8353 LH","Azhari"],["BL 8936","Kiki"],["BK 8661 XL","M.Nasir KP"],["BL 8954 ZP","M.Iqbal"],["BL 8891 ZP","Razali M"],["BK 8639 NH","Ridwan"],["BK 9448 TO","Sinyak"],["BK 8999 FB","BG ALI"],["Z 9281 DC","Bg pon nisam"],["BK 8587 PF","Bg yed Mahdi"]];
+const TUJ="MEDAN|GUDANG|Periode Lalu|Diambil Alwi|Ambil Kantor|Abdul Somad|Azhar|Bahri|Balyani|Bukhari|Fajar|Feri|Ghani|Khairunisa|M Nasir|Mawardinur|Azis Amin|PT PMI 1|PT PMI 2|Nurdin Hasyem|Rahmayani|Ramli|Rasyid|Riza H|Saiful|Sulaiman|Syahrol|Sayed Nadariadi|Syarkawi|Fauzan|Yusri|Zulkifi|Zulfikar A|Zulfikar B|Tgk Aji Nasir|M.Fadir|Abdullah|Afwan|Andi|Azanul|Fahrurrazi|Faisal|Halim|Intan|Muhajir|Mursyid|Nazaruddin|Fikar|Firdaus|Ria|Darwanti|Ridwan|Ammar|Auliati|Idris|Jainuddin|Jamal|Liza|Feriadi|Miswari|Saifulli|Sibral|M. Arif|M.Yusuf|Cut LiLis|zulfan|Arifuddin|Muktar|Aliya|Anidar|M.Rafi|M.Ikhlas".split("|");
+const JENIS=["Ongkos ekspedisi","Fee","Laba","Ambilan Abang Adi","Ongkos mutasi","Transfer ke mutasi","Biaya operasional ekspedisi","Biaya operasional mutasi"];
+const F=["tgl","merek","pengirim","tujuan","plat","sopir","karung","harga","mutasi","bayar","ket"];
+const NER=[["pembayaran","Total pembayaran ekspedisi"],["pajak","Total pajak 0,5%"],["ongkos","Total ongkos ekspedisi"],["fee","Fee perusahaan Mitra"],["operasional","Total biaya operasional usaha"]];
+const YED=[["pendapatan","Pendapatan ekspedisi"],["sewa","Pendapatan sewa truk ekspedisi"],["mutasi","Pendapatan sewa truk mutasi"],["p10","Pendapatan ekspedisi 10%"]];
+const $=s=>document.querySelector(s),dlg=$("#dlg"),dg=$("#dg");
+const now=new Date();
+let db=null,RO=false,ready=false,busy=false,P={},CFG={neraca:{},yed:{}};
+let S={tab:"bmr",bln:now.getFullYear()==2026?now.getMonth():0,half:now.getDate()<=15?1:2,edit:null};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num=v=>parseFloat(v)||0,rp=n=>"Rp "+Math.round(n||0).toLocaleString("id-ID"),fm=n=>(n||0).toLocaleString("id-ID",{maximumFractionDigits:2});
+const fd=t=>t?t.slice(8)+"/"+t.slice(5,7):"–";
+const calc=e=>{const ton=e.karung/20,kg=ton*1000,tag=kg*e.harga,total=tag+e.mutasi;return{ton,kg,tag,total,sisa:total-e.bayar}};
+const sums=es=>es.reduce((a,e)=>{const c=calc(e);a.krg+=e.karung;a.ton+=c.ton;a.tag+=c.tag;a.mut+=e.mutasi;a.bay+=e.bayar;a.sisa+=c.sisa;return a},{krg:0,ton:0,tag:0,mut:0,bay:0,sisa:0});
+const key=t=>`${t}-${S.bln}-${S.half}`,rows=t=>(P[key(t)]||{}).rows||[];
+function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",3500)}
+async function mut(t,fn){
+ if(!db||RO){toast("Tidak bisa menyimpan: sinkronisasi belum tersambung atau akses hanya baca.");return false}
+ if(busy)return false;busy=true;
+ try{const ref=db.doc("periode/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur.rows=fn(cur.rows||[]);await ref.set(cur);return true}
+ catch(e){toast("Gagal menyimpan ("+(e.code||"error")+"). Coba lagi.");return false}finally{busy=false}}
+function tab(t){S.tab=t;render();scrollTo(0,0)}
+function render(){
+ $("#st").textContent=RO?"Hanya baca":db?(ready?(navigator.onLine?"Online · tersinkron":"Offline · tersimpan di HP"):"Menghubungkan…"):"Belum tersambung";
+ ["bmr","bms","lap","bak"].forEach(k=>$("#n_"+k).className=S.tab==k?"on":"");
+ const pr=S.tab=="bmr"||S.tab=="bms";$("#ctl").style.display=pr?"":"none";$("#fab").style.display=pr&&!RO?"":"none";
+ $("#sb").value=S.bln;$("#sh").value=S.half;
+ $("#app").innerHTML=({bmr:vBmr,bms:vBms,lap:vLap,bak:vBak})[S.tab]()}
+function card(e){const c=calc(e);return `<div class="cd" onclick="openF('${e.id}')"><div class="r"><b>${esc(e.merek||"–")}</b><span class="mu">${fd(e.tgl)}</span></div><div class="mu">${esc(e.pengirim||"–")} → ${esc(e.tujuan||"–")}</div><div class="mu">${esc(e.plat)} ${e.sopir?"("+esc(e.sopir)+")":""}</div><div class="r g2"><span>${fm(e.karung)} karung = ${fm(c.ton)} ton</span><b>${rp(c.total)}</b></div><div class="r"><span class="mu">Dibayar ${rp(e.bayar)}</span><b class="${c.sisa>0?"bad":"ok"}">Sisa ${rp(c.sisa)}</b></div></div>`}
+function vBmr(){const es=rows("BMR"),s=sums(es);
+ return `<div class="sum"><div style="color:#cfd9e4;font-size:13px">Sisa tagihan BMR · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="big">${rp(s.sisa)}</div><div class="g"><span>Pengiriman <b>${es.length}</b></span><span>Karung <b>${fm(s.krg)}</b></span><span>Berat <b>${fm(s.ton)} ton</b></span><span>Tagihan <b>${rp(s.tag)}</b></span><span>Mutasi <b>${rp(s.mut)}</b></span><span>Dibayar <b>${rp(s.bay)}</b></span></div></div>`+pin("BMR","pajak","Pajak 0,5% periode ini (untuk Neraca)")+(es.length?es.map(card).join(""):`<div class="empty">Belum ada pengiriman di periode ini.${RO?"":"<br>Ketuk + untuk menambah."}</div>`)}
+function vBms(){const es=rows("BMS");const by=JENIS.map(j=>[j,es.filter(e=>e.jenis==j).reduce((a,e)=>a+e.jumlah,0)]).filter(x=>x[1]);
+ return `<div class="sum"><div style="color:#cfd9e4;font-size:13px">Keuangan BMS · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="g" style="grid-template-columns:1fr">${by.length?by.map(([j,v])=>`<span class="r"><span>${esc(j)}</span><b>${rp(v)}</b></span>`).join(""):"<span>Belum ada catatan.</span>"}</div></div>`+BMSP()+es.map(e=>`<div class="cd" onclick="openG('${e.id}')"><div class="r"><b>${esc(e.jenis)}</b><b>${rp(e.jumlah)}</b></div><div class="mu">${fd(e.tgl)} ${esc(e.ket)}</div></div>`).join("")}
+const sumD=(t,f)=>Object.values(P).filter(x=>x.t==t).reduce((a,x)=>a+f(x),0);
+const jn=(x,j)=>(x.rows||[]).filter(r=>r.jenis==j).reduce((a,r)=>a+r.jumlah,0);
+const pin=(t,k,l)=>`<div class="ln"><span>${l}</span><input type="number" inputmode="decimal" value="${num((P[key(t)]||{})[k])}" ${RO?"disabled":""} onchange="setP('${t}','${k}',this.value)"></div>`;
+const BMSP=()=>`<div style="margin-bottom:10px">`+pin("BMS","feeMitra","Total bagi hasil PT (fee Mitra)")+pin("BMS","kasRek","Keuntungan bersih periode (V15)")+pin("BMS","sewa","Sewa truk ekspedisi (T17)")+pin("BMS","mut","Mutasi (U15)")+`</div>`;
+const ADJ=[["pembayaran","Pembayaran ekspedisi (awal)"],["pajak","Pajak 0,5% (awal)"],["ongkos","Ongkos ekspedisi (awal)"],["fee","Fee perusahaan Mitra (awal)"],["operasional","Biaya operasional (awal)"],["yedPend","Pendapatan ekspedisi YED (awal)"],["yedBiaya","Biaya perawatan dan operasional YED (awal)"]];
+function lapVal(){const A=CFG.adj||{};
+ const bmr=sumD("BMR",x=>{const s=sums(x.rows||[]);return s.tag+s.mut});
+ const N={pembayaran:bmr+num(A.pembayaran),pajak:sumD("BMR",x=>num(x.pajak))+num(A.pajak),ongkos:sumD("BMS",x=>jn(x,"Ongkos ekspedisi"))+num(A.ongkos),fee:sumD("BMS",x=>num(x.feeMitra))+num(A.fee),operasional:sumD("BMS",x=>jn(x,"Biaya operasional ekspedisi"))+num(A.operasional)};
+ const Y={pendapatan:.5*sumD("BMS",x=>x.b>=5?num(x.kasRek):0)+num(A.yedPend),sewa:sumD("BMS",x=>num(x.sewa)),mutasi:0,p10:sumD("BMS",x=>num(x.mut)),biaya:sumD("BMS",x=>jn(x,"Biaya operasional mutasi"))+num(A.yedBiaya)};
+ return{N,Y}}
+function vLap(){const {N,Y}=lapVal(),kn=N.pembayaran-N.pajak-N.ongkos-N.fee-N.operasional,tp=Y.pendapatan+Y.sewa+Y.mutasi+Y.p10,ky=tp-Y.biaya;
+ const ln=(l,v)=>`<div class="ln"><span>${l}</span><span>${rp(v)}</span></div>`;
+ const adj=(k,l)=>`<div class="ln"><span>${l}</span><input type="number" inputmode="decimal" value="${num((CFG.adj||{})[k])}" ${RO?"disabled":""} onchange="setA('${k}',this.value)"></div>`;
+ return `<p class="mu">Dihitung otomatis dari BMR dan BMS. Isi pajak di tab Pengiriman, serta bagi hasil dan angka kas di tab Keuangan, untuk setiap periode.</p><h2>Neraca</h2>`+NER.map(([k,l])=>ln(l,N[k])).join("")+`<div class="ln t"><span>Keuntungan bersih usaha ekspedisi</span><span class="${kn>=0?"ok":"bad"}">${rp(kn)}</span></div><div class="ln t"><span>Keuntungan bersih (%)</span><span>${N.pembayaran?fm(kn/N.pembayaran*100):"–"}%</span></div>
+ <h2>Kas YED</h2>`+YED.map(([k,l])=>ln(l,Y[k])).join("")+`<div class="ln t"><span>Total pendapatan</span><span>${rp(tp)}</span></div>`+ln("Biaya perawatan truk dan operasional",Y.biaya)+`<div class="ln t"><span>Keuntungan bersih usaha ekspedisi</span><span class="${ky>=0?"ok":"bad"}">${rp(ky)}</span></div>
+ <h2>Saldo awal dan penyesuaian</h2><p class="mu">Angka tetap yang ikut dijumlahkan di rumus Excel. Ubah hanya jika Excel Anda berubah.</p>`+ADJ.map(([k,l])=>adj(k,l)).join("")}
+function vBak(){return `<button class="pl" onclick="firebase.auth().signOut().then(()=>location.reload())">Keluar akun</button><h2>Cadangan data</h2><p class="mu">Data tersimpan di database aplikasi ini dan tampil sama di semua HP yang membukanya. Unduh cadangan berkala sebagai salinan di luar aplikasi.</p>
+ <button class="pl" onclick="bakJson()">Unduh cadangan lengkap (JSON)</button><button class="pl" onclick="csv(true)">Unduh semua BMR (CSV)</button><button class="pl" onclick="csv(false)">Unduh BMR periode ini (CSV)</button>
+ ${RO?"":`<h2>Pulihkan</h2><p class="mu">Pilih file cadangan JSON. Periode di dalam file akan menggantikan data periode yang sama.</p><input type="file" accept=".json,application/json" onchange="restore(this)">`}`}
+async function setA(k,v){if(!db||RO)return;CFG.adj=CFG.adj||{};CFG.adj[k]=num(v);try{await db.doc("cfg/laporan").set({adj:CFG.adj});render()}catch(e){toast("Gagal menyimpan.")}}
+async function setP(t,k,v){if(!db||RO||busy)return;busy=true;try{const ref=db.doc("periode/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur[k]=num(v);await ref.set(cur);toast("Tersimpan")}catch(e){toast("Gagal menyimpan ("+(e.code||"error")+").")}finally{busy=false}}
+function defDate(){return `2026-${String(S.bln+1).padStart(2,"0")}-${S.half==1?"01":"16"}`}
+function openF(id){if(RO)return;S.edit=id||null;const e=id?rows("BMR").find(x=>x.id==id)||{}:{tgl:defDate()};F.forEach(k=>$("#f_"+k).value=e[k]??"");$("#del").style.display=id?"":"none";$("#ft").textContent=id?"Ubah pengiriman":"Pengiriman baru";prev();dlg.showModal()}
+function autoS(){const p=PLAT.find(x=>x[0].toLowerCase()==$("#f_plat").value.trim().toLowerCase());if(p&&!$("#f_sopir").value)$("#f_sopir").value=p[1]}
+function vals(){const e={};F.forEach(k=>e[k]=$("#f_"+k).value.trim());["karung","harga","mutasi","bayar"].forEach(k=>e[k]=num(e[k]));return e}
+function prev(){const e=vals(),c=calc(e);$("#pv").innerHTML=`${fm(c.ton)} ton (${fm(c.kg)} kg)<br>Tagihan ${rp(c.tag)} · Total ${rp(c.total)}<br><b>Sisa ${rp(c.sisa)}</b>`}
+async function simpan(){const e=vals();if(!e.tgl||e.karung<=0){alert("Isi tanggal dan jumlah karung.");return}
+ const id=S.edit;if(await mut("BMR",r=>id?r.map(x=>x.id==id?{...x,...e}:x):[...r,{id:"n"+Date.now().toString(36),...e}])){dlg.close();toast("Tersimpan")}}
+async function hapus(){const id=S.edit;if(confirm("Hapus pengiriman ini?")&&await mut("BMR",r=>r.filter(x=>x.id!=id)))dlg.close()}
+function openG(id){if(RO)return;S.edit=id||null;const e=id?rows("BMS").find(x=>x.id==id)||{}:{tgl:""};$("#g_jenis").innerHTML=JENIS.map(j=>`<option>${j}</option>`).join("");$("#g_tgl").value=e.tgl||"";$("#g_jenis").value=e.jenis||JENIS[0];$("#g_ket").value=e.ket||"";$("#g_jumlah").value=e.jumlah??"";$("#gdel").style.display=id?"":"none";$("#gt").textContent=id?"Ubah catatan":"Catatan keuangan baru";dg.showModal()}
+async function simpanG(){const e={tgl:$("#g_tgl").value,jenis:$("#g_jenis").value,ket:$("#g_ket").value.trim(),jumlah:num($("#g_jumlah").value)};if(!e.jumlah){alert("Isi jumlah.");return}
+ const id=S.edit;if(await mut("BMS",r=>id?r.map(x=>x.id==id?{...x,...e}:x):[...r,{id:"n"+Date.now().toString(36),...e}])){dg.close();toast("Tersimpan")}}
+async function hapusG(){const id=S.edit;if(confirm("Hapus catatan ini?")&&await mut("BMS",r=>r.filter(x=>x.id!=id)))dg.close()}
+async function save(name,data){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:name.endsWith(".csv")?"text/csv":"application/json"}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+function bakJson(){save(`cadangan-mbs-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({v:1,periode:P,cfg:CFG}))}
+function csv(all){const r=[["Periode","No","Tanggal","Merek","Pengirim","Tujuan","Plat","Sopir","Karung","Ton","Kg","Harga","Tagihan","Mutasi","Dibayar","Total","Sisa","Keterangan"]];
+ Object.keys(P).filter(k=>P[k].t=="BMR"&&(all||k==key("BMR"))).sort((a,b)=>{const x=P[a],y=P[b];return x.b-y.b||x.h-y.h}).forEach(k=>{const p=P[k];(p.rows||[]).forEach((e,i)=>{const c=calc(e);r.push([`${BLN[p.b]} ${p.h==1?"1":"16"}`,i+1,e.tgl,e.merek,e.pengirim,e.tujuan,e.plat,e.sopir,e.karung,c.ton,c.kg,e.harga,c.tag,e.mutasi,e.bayar,c.total,c.sisa,e.ket])})});
+ save(all?"bmr-2026-semua.csv":`bmr-${BLN[S.bln]}-${S.half==1?"1":"16"}.csv`,"\ufeff"+r.map(x=>x.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\r\n"))}
+async function restore(inp){const f=inp.files[0];if(!f||!db)return;try{const j=JSON.parse(await f.text()),ids=Object.keys(j.periode||{});if(!ids.length||!confirm(`Pulihkan ${ids.length} periode? Data periode yang sama akan diganti.`))return;
+ for(const id of ids)await db.doc("periode/"+id).set(j.periode[id]);if(j.cfg)await db.doc("cfg/laporan").set(j.cfg);toast("Pemulihan selesai")}catch(e){toast("File cadangan tidak valid atau gagal ditulis.")}inp.value=""}
+$("#sb").innerHTML=BLN.map((m,i)=>`<option value="${i}">${m}</option>`).join("");
+$("#sb").onchange=e=>{S.bln=+e.target.value;render()};$("#sh").onchange=e=>{S.half=+e.target.value;render()};
+$("#dm").innerHTML=MEREK.map(x=>`<option value="${esc(x)}">`).join("");$("#dt").innerHTML=TUJ.map(x=>`<option value="${esc(x)}">`).join("");$("#dp").innerHTML=PLAT.map(x=>`<option value="${x[0]}">${esc(x[1])}</option>`).join("");
+render();
+function startSync(){if(startSync.d)return;startSync.d=1;
+ const fx=firebase.firestore();try{fx.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
+ const wrap=s=>({exists:s.exists,data:()=>s.data()});
+ db={doc:p=>{const r=fx.doc(p);return{get:async()=>wrap(await r.get()),set:d=>{r.set(d).catch(e=>toast("Gagal menyimpan ke server ("+(e.code||"error")+")"));return Promise.resolve()},onSnapshot:(n,e)=>r.onSnapshot(x=>n(wrap(x)),e)}},collection:p=>{const c=fx.collection(p);return{onSnapshot:(n,e)=>c.onSnapshot(x=>n({docs:x.docs.map(d=>({id:d.id,data:()=>d.data()}))}),e)}}};
+ render();
+ db.collection("periode").onSnapshot(s=>{P={};s.docs.forEach(d=>{const x=d.data();if(x)P[`${x.t}-${x.b}-${x.h}`]=x});ready=true;render()},()=>toast("Sinkronisasi terputus. Muat ulang halaman."));
+ db.doc("cfg/laporan").onSnapshot(s=>{if(s.exists){CFG=s.data();if(S.tab=="lap"&&!(document.activeElement&&document.activeElement.matches("input")))render()}},()=>{})}
+async function masuk(){try{await firebase.auth().signInWithEmailAndPassword($("#l_em").value.trim(),$("#l_pw").value)}catch(e){$("#l_err").textContent="Email atau kata sandi salah."}}
+addEventListener("online",render);addEventListener("offline",render);
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if(!window.firebase||!window.FIREBASE_CONFIG||/^ISI/.test(FIREBASE_CONFIG.apiKey||"ISI")){toast("Isi file firebase-config.js terlebih dahulu.")}
+else{firebase.initializeApp(FIREBASE_CONFIG);firebase.auth().onAuthStateChanged(u=>{if(u){if($("#lg").open)$("#lg").close();startSync()}else{render();$("#lg").showModal()}})}
+</script></body></html>
