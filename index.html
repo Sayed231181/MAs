@@ -50,7 +50,7 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 <div class="two"><div><label>Plat mobil</label><input id="f_plat" list="dp" oninput="autoS()"></div><div><label>Nama sopir</label><input id="f_sopir"></div></div>
 <div class="two"><div><label>Jumlah karung</label><input type="number" inputmode="decimal" id="f_karung" oninput="prev()"></div><div><label>Harga per kg (Rp)</label><input type="number" inputmode="decimal" id="f_harga" oninput="prev()"></div></div>
 <div class="two"><div><label>Biaya mutasi (Rp)</label><input type="number" inputmode="decimal" id="f_mutasi" oninput="prev()"></div><div><label>Pembayaran (Rp)</label><input type="number" inputmode="decimal" id="f_bayar" oninput="prev()"></div></div>
-<label>Keterangan</label><input id="f_ket"><div class="pv" id="pv"></div>
+<label>Untuk laporan BMS (boleh dikosongkan)</label><div class="two"><div><label>Ongkos per kg (Rp)</label><input type="number" inputmode="decimal" id="f_d"></div><div><label>Mobil Yed (Rp)</label><input type="number" inputmode="decimal" id="f_f"></div></div><label>Ongkos mobil (Rp)</label><input type="number" inputmode="decimal" id="f_k"><label>Keterangan</label><input id="f_ket"><div class="pv" id="pv"></div>
 <div class="btns"><button id="del" onclick="hapus()">Hapus</button><button onclick="dlg.close()">Batal</button><button class="p" onclick="simpan()">Simpan</button></div>
 <datalist id="dm"></datalist><datalist id="dt"></datalist><datalist id="dp"></datalist></dialog>
 <dialog id="dg"><b id="gt"></b>
@@ -65,7 +65,7 @@ const MEREK="Phokpan - B511F|Phokpan - B511|Phokpan - B512G|New Hope - BPS|New H
 const PLAT=[["BK 8323 FB","BG MUN"],["BK 8075 NB","Beuna Jaya"],["BK 8323 CG","ZIAN"],["BK 8344 BT","usman"],["BK 8679 GF","heri"],["BK 8591 GR","Akmal"],["BK 8551 GC","Tulang"],["BL 8808 JK","Dhonalwi"],["BL 8659 ZT","Syarifuddin"],["BL 8546 PF","zamzami"],["BL 8353 LH","Azhari"],["BL 8936","Kiki"],["BK 8661 XL","M.Nasir KP"],["BL 8954 ZP","M.Iqbal"],["BL 8891 ZP","Razali M"],["BK 8639 NH","Ridwan"],["BK 9448 TO","Sinyak"],["BK 8999 FB","BG ALI"],["Z 9281 DC","Bg pon nisam"],["BK 8587 PF","Bg yed Mahdi"]];
 const TUJ="MEDAN|GUDANG|Periode Lalu|Diambil Alwi|Ambil Kantor|Abdul Somad|Azhar|Bahri|Balyani|Bukhari|Fajar|Feri|Ghani|Khairunisa|M Nasir|Mawardinur|Azis Amin|PT PMI 1|PT PMI 2|Nurdin Hasyem|Rahmayani|Ramli|Rasyid|Riza H|Saiful|Sulaiman|Syahrol|Sayed Nadariadi|Syarkawi|Fauzan|Yusri|Zulkifi|Zulfikar A|Zulfikar B|Tgk Aji Nasir|M.Fadir|Abdullah|Afwan|Andi|Azanul|Fahrurrazi|Faisal|Halim|Intan|Muhajir|Mursyid|Nazaruddin|Fikar|Firdaus|Ria|Darwanti|Ridwan|Ammar|Auliati|Idris|Jainuddin|Jamal|Liza|Feriadi|Miswari|Saifulli|Sibral|M. Arif|M.Yusuf|Cut LiLis|zulfan|Arifuddin|Muktar|Aliya|Anidar|M.Rafi|M.Ikhlas".split("|");
 const JENIS=["Ongkos ekspedisi","Fee","Laba","Ambilan Abang Adi","Ongkos mutasi","Transfer ke mutasi","Biaya operasional ekspedisi","Biaya operasional mutasi"];
-const F=["tgl","merek","pengirim","tujuan","plat","sopir","karung","harga","mutasi","bayar","ket"];
+const F=["tgl","merek","pengirim","tujuan","plat","sopir","karung","harga","mutasi","bayar","d","f","k","ket"];
 const NER=[["pembayaran","Total pembayaran ekspedisi"],["pajak","Total pajak 0,5%"],["ongkos","Total ongkos ekspedisi"],["fee","Fee perusahaan Mitra"],["operasional","Total biaya operasional usaha"]];
 const YED=[["pendapatan","Pendapatan ekspedisi"],["sewa","Pendapatan sewa truk ekspedisi"],["mutasi","Pendapatan sewa truk mutasi"],["p10","Pendapatan ekspedisi 10%"]];
 const $=s=>document.querySelector(s),dlg=$("#dlg"),dg=$("#dg");
@@ -101,9 +101,11 @@ const jn=(x,j)=>(x.rows||[]).filter(r=>r.jenis==j).reduce((a,r)=>a+r.jumlah,0);
 const pin=(t,k,l)=>`<div class="ln"><span>${l}</span><input type="number" inputmode="decimal" value="${num((P[key(t)]||{})[k])}" ${RO?"disabled":""} onchange="setP('${t}','${k}',this.value)"></div>`;
 const BMSP=()=>`<div style="margin-bottom:10px">`+pin("BMS","feeMitra","Total bagi hasil PT (fee Mitra)")+pin("BMS","kasRek","Keuntungan bersih periode (V15)")+pin("BMS","sewa","Sewa truk ekspedisi (T17)")+pin("BMS","mut","Mutasi (U15)")+`</div>`;
 const ADJ=[["pembayaran","Pembayaran ekspedisi (awal)"],["pajak","Pajak 0,5% (awal)"],["ongkos","Ongkos ekspedisi (awal)"],["fee","Fee perusahaan Mitra (awal)"],["operasional","Biaya operasional (awal)"],["yedPend","Pendapatan ekspedisi YED (awal)"],["yedBiaya","Biaya perawatan dan operasional YED (awal)"]];
+function ongkosAll(){const ks=new Set(Object.values(P).map(x=>x.b+"-"+x.h));let t=0;ks.forEach(k=>{const b=P["BMR-"+k],s=P["BMS-"+k];t+=b&&(b.rows||[]).some(e=>num(e.d)>0)?sums2(b.rows):(s?jn(s,"Ongkos ekspedisi"):0)});return t}
+const sums2=r=>r.reduce((a,e)=>a+e.karung/20*1000*num(e.d),0);
 function lapVal(){const A=CFG.adj||{};
  const bmr=sumD("BMR",x=>{const s=sums(x.rows||[]);return s.tag+s.mut});
- const N={pembayaran:bmr+num(A.pembayaran),pajak:sumD("BMR",x=>num(x.pajak))+num(A.pajak),ongkos:sumD("BMS",x=>jn(x,"Ongkos ekspedisi"))+num(A.ongkos),fee:sumD("BMS",x=>num(x.feeMitra))+num(A.fee),operasional:sumD("BMS",x=>jn(x,"Biaya operasional ekspedisi"))+num(A.operasional)};
+ const N={pembayaran:bmr+num(A.pembayaran),pajak:sumD("BMR",x=>num(x.pajak))+num(A.pajak),ongkos:ongkosAll()+num(A.ongkos),fee:sumD("BMS",x=>num(x.feeMitra))+num(A.fee),operasional:sumD("BMS",x=>jn(x,"Biaya operasional ekspedisi"))+num(A.operasional)};
  const Y={pendapatan:.5*sumD("BMS",x=>x.b>=5?num(x.kasRek):0)+num(A.yedPend),sewa:sumD("BMS",x=>num(x.sewa)),mutasi:0,p10:sumD("BMS",x=>num(x.mut)),biaya:sumD("BMS",x=>jn(x,"Biaya operasional mutasi"))+num(A.yedBiaya)};
  return{N,Y}}
 function vLap(){const {N,Y}=lapVal(),kn=N.pembayaran-N.pajak-N.ongkos-N.fee-N.operasional,tp=Y.pendapatan+Y.sewa+Y.mutasi+Y.p10,ky=tp-Y.biaya;
@@ -120,7 +122,7 @@ async function setP(t,k,v){if(!db||RO||busy)return;busy=true;try{const ref=db.do
 function defDate(){return `2026-${String(S.bln+1).padStart(2,"0")}-${S.half==1?"01":"16"}`}
 function openF(id){if(RO)return;S.edit=id||null;const e=id?rows("BMR").find(x=>x.id==id)||{}:{tgl:defDate()};F.forEach(k=>$("#f_"+k).value=e[k]??"");$("#del").style.display=id?"":"none";$("#ft").textContent=id?"Ubah pengiriman":"Pengiriman baru";prev();dlg.showModal()}
 function autoS(){const p=PLAT.find(x=>x[0].toLowerCase()==$("#f_plat").value.trim().toLowerCase());if(p&&!$("#f_sopir").value)$("#f_sopir").value=p[1]}
-function vals(){const e={};F.forEach(k=>e[k]=$("#f_"+k).value.trim());["karung","harga","mutasi","bayar"].forEach(k=>e[k]=num(e[k]));return e}
+function vals(){const e={};F.forEach(k=>e[k]=$("#f_"+k).value.trim());["karung","harga","mutasi","bayar","d","f","k"].forEach(k=>e[k]=num(e[k]));return e}
 function prev(){const e=vals(),c=calc(e);$("#pv").innerHTML=`${fm(c.ton)} ton (${fm(c.kg)} kg)<br>Tagihan ${rp(c.tag)} · Total ${rp(c.total)}<br><b>Sisa ${rp(c.sisa)}</b>`}
 async function simpan(){const e=vals();if(!e.tgl||e.karung<=0){alert("Isi tanggal dan jumlah karung.");return}
  const id=S.edit;if(await mut("BMR",r=>id?r.map(x=>x.id==id?{...x,...e}:x):[...r,{id:"n"+Date.now().toString(36),...e}])){dlg.close();toast("Tersimpan")}}
