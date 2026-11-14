@@ -1,0 +1,51 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ekspor Excel MBS</title>
+<style>body{font:16px system-ui,sans-serif;margin:0;padding:16px;background:#0d141b;color:#e6edf3}button{width:100%;padding:14px;margin:8px 0;border:0;border-radius:10px;background:#f5a524;color:#1b1200;font:inherit;font-weight:600}button:disabled{opacity:.4}#m{margin:12px 0;color:#92a3b3}a{color:#f5a524}</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="firebase-config.js"></script></head><body>
+<h2>Ekspor ke Excel</h2>
+<p>Hasilnya satu file .xlsx: sheet REKAP, sheet KEUANGAN, dan satu sheet BMR per periode dengan susunan kolom seperti file MAS 2026.</p>
+<button id="b" disabled>Unduh Excel (.xlsx)</button><div id="m">Memeriksa login…</div>
+<p><a href="./">Kembali ke aplikasi</a></p>
+<script>
+const BLN=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+const SH=["JAN","FEB","MAR","APR","MEI","JUN","JUL","AGU","SEP","OKT","NOV","DES"];
+const $=s=>document.querySelector(s),m=t=>{$("#m").textContent=t};
+let P={};
+const ser=t=>{if(!t)return null;const a=t.split("-").map(Number);return Date.UTC(a[0],a[1]-1,a[2])/864e5+25569};
+const per=(t,b,h)=>`${t} ${SH[b]} ${h==1?1:16}`;
+function bmrSheet(p){
+ const A=[[],[],[],[],[null,null,null,null,null,"PERIODE   :",null,p.h==1?"1 - 15":"16 - akhir",BLN[p.b],null,null,2026],[],
+ [null,"No","Tanggal","Merek - Jenis Pakan","Pengirim","Tujuan Pakan","Plat Mobil","Nama Sopir","Jumlah Pakan",null,null,"Jumlah Tagihan expedisi",null,"Biaya Mutasi","Pembayaran","Total","Keterangan"],
+ [null,null,null,null,null,null,null,null,"Karung","Ton","Kg","Harga","Total",null,null,"Sisa"]];
+ const R=p.rows||[];
+ R.forEach((e,i)=>{const n=9+i;A.push([null,i+1,ser(e.tgl),e.merek,e.pengirim,e.tujuan,e.plat,e.sopir,e.karung,{f:`I${n}/20`},{f:`J${n}*1000`},e.harga,{f:`K${n}*L${n}`},e.mutasi||null,e.bayar||null,null,e.ket||null])});
+ const l=8+R.length,t=l+1,S=c=>({f:`SUM(${c}9:${c}${l})`});
+ A.push([null,"T O T A L",null,null,null,null,null,null,S("I"),S("J"),S("K"),null,S("M"),S("N"),S("O"),{f:`M${t}+N${t}-O${t}`}]);
+ A.push([null,"Pajak 0,5% periode ini",null,null,null,null,null,null,null,null,null,null,null,null,p.pajak||0]);
+ const ws=XLSX.utils.aoa_to_sheet(A);
+ R.forEach((e,i)=>{const c=ws["C"+(9+i)];if(c)c.z="dd/mm/yyyy"});
+ for(let r=9;r<=t+1;r++)["L","M","N","O","P"].forEach(c=>{const x=ws[c+r];if(x)x.z="#,##0"});
+ ws["!cols"]=[{wch:3},{wch:5},{wch:11},{wch:22},{wch:12},{wch:18},{wch:13},{wch:14},{wch:8},{wch:7},{wch:8},{wch:9},{wch:13},{wch:12},{wch:13},{wch:14},{wch:16}];
+ return ws}
+function buildWB(P){
+ const ks=Object.keys(P).sort((a,b)=>{const x=P[a],y=P[b];return x.b-y.b||x.h-y.h||(x.t<y.t?-1:1)});
+ const B=ks.filter(k=>P[k].t=="BMR"),K=ks.filter(k=>P[k].t=="BMS");
+ const RK=[["Periode","Pengiriman","Karung","Ton","Tagihan","Mutasi","Dibayar","Sisa","Pajak 0,5%"]];
+ B.forEach(k=>{const p=P[k];let kr=0,tg=0,mu=0,by=0;(p.rows||[]).forEach(e=>{kr+=e.karung;tg+=e.karung/20*1000*e.harga;mu+=e.mutasi;by+=e.bayar});RK.push([per("BMR",p.b,p.h),(p.rows||[]).length,kr,kr/20,tg,mu,by,tg+mu-by,p.pajak||0])});
+ const KU=[["Periode","Tanggal","Jenis","Keterangan","Jumlah"]];
+ K.forEach(k=>{const p=P[k],n=per("BMS",p.b,p.h);(p.rows||[]).forEach(e=>KU.push([n,e.tgl||"",e.jenis,e.ket||"",e.jumlah]));
+  [["feeMitra","Total bagi hasil PT (R30)"],["kasRek","Keuntungan bersih periode (V15)"],["sewa","Sewa truk ekspedisi (T17)"],["mut","Mutasi (U15)"]].forEach(a=>{if(p[a[0]])KU.push([n,"",a[1],"",p[a[0]]])})});
+ const wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(RK),"REKAP");
+ XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(KU),"KEUANGAN");
+ B.forEach(k=>XLSX.utils.book_append_sheet(wb,bmrSheet(P[k]),per("BMR",P[k].b,P[k].h)));
+ return wb}
+function unduh(){try{XLSX.writeFile(buildWB(P),"MBS-2026-"+new Date().toISOString().slice(0,10)+".xlsx");m("Selesai. Cek folder Download.")}catch(e){m("Gagal membuat file: "+e.message)}}
+if(typeof firebase!="undefined"&&typeof window!="undefined"&&window.FIREBASE_CONFIG){
+ $("#b").onclick=unduh;firebase.initializeApp(FIREBASE_CONFIG);
+ firebase.auth().onAuthStateChanged(u=>{if(!u){m("Belum masuk. Buka aplikasi dulu, masuk, lalu kembali ke halaman ini.");return}
+  m("Mengambil data…");firebase.firestore().collection("periode").get().then(s=>{s.forEach(d=>{const x=d.data();P[x.t+"-"+x.b+"-"+x.h]=x});m(Object.keys(P).length+" periode siap diunduh.");$("#b").disabled=false},e=>m("Gagal membaca data: "+(e.code||e.message)))})}
+</script></body></html>
