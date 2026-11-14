@@ -1,55 +1,5 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ekspor Excel MBS</title>
-<style>body{font:16px system-ui,sans-serif;margin:0;padding:16px;background:#0d141b;color:#e6edf3}button{width:100%;padding:14px;margin:8px 0;border:0;border-radius:10px;background:#f5a524;color:#1b1200;font:inherit;font-weight:600}button:disabled{opacity:.4}#m{margin:12px 0;color:#92a3b3}a{color:#f5a524}</style>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="firebase-config.js"></script></head><body>
-<h2>Ekspor ke Excel</h2>
-<p>Satu file .xlsx berisi REKAP, lalu sheet BMR dan BMS untuk semua periode (JAN 1 sampai DES 16), NERACA, dan KAS YED. Susunan mengikuti file MAS 2026.</p>
-<button id="b" disabled>Unduh Excel (.xlsx)</button><div id="m">Memeriksa login…</div>
-<p><a href="./">Kembali ke aplikasi</a></p>
-<script>
-const BLN=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
-const MO=["JAN","FEB","MAR","APR","MEI","JUN","JUL","AGU","SEP","OKT","NOV","DES"];
-const $=s=>document.querySelector(s),m=t=>{$("#m").textContent=t};
-let P={},ADJ={};
-const nm=(t,b,h)=>`${t} ${MO[b]} ${h==1?1:16}`;
-const ser=t=>{if(!t)return null;const a=t.split("-").map(Number);return Date.UTC(a[0],a[1]-1,a[2])/864e5+25569};
-const ci=c=>c.split("").reduce((a,x)=>a*26+x.charCodeAt(0)-64,0)-1;
-const sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
-function bmrSheet(b,h,p){
- const R=(p&&p.rows)||[];
- const A=[[],[],[],[],[null,null,null,null,null,"PERIODE   :",null,h==1?"1 - 15":"16 - akhir",BLN[b],null,null,2026],[],
- [null,"No","Tanggal","Merek - Jenis Pakan","Pengirim","Tujuan Pakan","Plat Mobil","Nama Sopir","Jumlah Pakan",null,null,"Jumlah Tagihan expedisi",null,"Biaya Mutasi","Pembayaran","Total","Keterangan"],
- [null,null,null,null,null,null,null,null,"Karung","Ton","Kg","Harga","Total",null,null,"Sisa"]];
- R.forEach((e,i)=>{const n=9+i;A.push([null,i+1,ser(e.tgl),e.merek,e.pengirim,e.tujuan,e.plat,e.sopir,e.karung,{f:`IF(I${n}="","",I${n}/20)`},{f:`IF(J${n}="","",J${n}*1000)`},e.harga||null,{f:`IF(L${n}="","",L${n}*K${n})`},e.mutasi||null,e.bayar||null,null,e.ket||null])});
- const l=Math.max(8+R.length,9),t=l+1,S=c=>({f:`SUM(${c}9:${c}${l})`});
- while(A.length<l)A.push([]);
- A.push([null,"T O T A L",null,null,null,null,null,null,S("I"),S("J"),S("K"),null,S("M"),S("N"),S("O"),{f:`M${t}+N${t}-O${t}`}]);
- A.push([null,"Pajak 0,5% periode ini",null,null,null,null,null,null,null,null,null,null,null,null,(p&&p.pajak)||0]);
- const ws=XLSX.utils.aoa_to_sheet(A);
- R.forEach((e,i)=>{const c=ws["C"+(9+i)];if(c)c.z="dd/mm/yyyy"});
- for(let r=9;r<=t+1;r++)["L","M","N","O","P"].forEach(c=>{const x=ws[c+r];if(x)x.z="#,##0"});
- ws["!cols"]=[{wch:3},{wch:5},{wch:11},{wch:22},{wch:12},{wch:18},{wch:13},{wch:14},{wch:8},{wch:7},{wch:8},{wch:9},{wch:13},{wch:12},{wch:13},{wch:14},{wch:16}];
- return ws}
-function bmsSheet(b,h,pb,ps){
- const R=(pb&&pb.rows)||[],L=(ps&&ps.rows)||[],bn=nm("BMR",b,h),gf=b<=6;
- const amb=L.filter(x=>x.jenis=="Ambilan Abang Adi"),opr=L.filter(x=>/^Biaya operasional/.test(x.jenis)),kx=(ps&&ps.kx)||[];
- const tot=L.filter(x=>!/^Ambilan|^Biaya operasional/.test(x.jenis));
- const A=[];const put=(r,c,v)=>{while(A.length<r)A.push([]);const row=A[r-1],i=ci(c);while(row.length<=i)row.push(null);row[i]=v};
- put(2,"T","PERIODE");put(3,"T",(h==1?"1 - 15 ":"16 - akhir ")+MO[b]);
- put(5,"B","LAPORAN KEUANGAN EKSPEDISI");put(5,"N","LAPORAN BIAYA OPERASIONAL");put(5,"T","LAPORAN KAS");
- [["B","No"],["C","Tanggal"],["D","Ekspedisi"],["H","Ambilan Abang Adi"],["K","Mutasi dan Ongkos Mobil"],["N","Biaya Operasional"],["R","Pembagian Hasil PT"],["T","Saldo Abang Adi"],["V","KAS REK EXPEDISI"]].forEach(a=>put(7,a[0],a[1]));
- [["C","Transaksi"],["D","Harga Per kilo"],["E","Ongkos"],["F","Mobil yed (mobil kun...)"],["G","Laba"],["H","Tanggal"],["I","Jumlah"],["J","Keterangan"],["K","Ongkos Mobil"],["L","Transfer Ke Mutasi"],["N","Tanggal"],["O","Keterangan"],["P","Ekspedisi"],["Q","Mutasi"],["T","Keuntungan"],["U","Sisa Uang Abang Adi"]].forEach(a=>put(8,a[0],a[1]));
- R.forEach((e,i)=>{const n=9+i,q="'"+bn+"'!";
-  put(n,"B",i+1);put(n,"C",ser(e.tgl));put(n,"D",e.d||null);put(n,"E",{f:`IF(${q}K${n}="","",${q}K${n}*D${n})`});put(n,"F",e.f||null);
-  put(n,"G",{f:gf?`N(${q}M${n})-E${n}-F${n}`:`IF(${q}M${n}="","",${q}M${n}-E${n})`});put(n,"K",e.k||null);put(n,"L",{f:`IF(${q}N${n}="","",${q}N${n}-K${n})`})});
- kx.forEach((k,j)=>put(9+R.length+j,"K",k));
- amb.forEach((e,i)=>{const n=9+i;put(n,"H",ser(e.tgl));put(n,"I",e.jumlah);put(n,"J",e.ket||null)});
- opr.forEach((e,i)=>{const n=9+i;put(n,"N",ser(e.tgl));put(n,"O",e.ket||null);put(n,/mutasi/.test(e.jenis)?"Q":"P",e.jumlah)});
- const l=Math.max(8,8+R.length+kx.length,8+amb.length,8+opr.length),t=l+1,Sf=c=>({f:`SUM(${c}9:${c}${Math.max(l,9)})`});
- put(t,"B","TOTAL");["D","E","F","G","I","K","L","P","Q"].forEach(c=>put(t,c,Sf(c)));
+
+"E","F","G","I","K","L","P","Q"].forEach(c=>put(t,c,Sf(c)));
  [["feeMitra","Total bagi hasil PT (R30)"],["kasRek","Keuntungan bersih periode (V15)"],["sewa","Sewa truk ekspedisi (T17)"],["mut","Mutasi (U15)"]].forEach((a,i)=>{put(10+i,"T",a[1]);put(10+i,"U",(ps&&ps[a[0]])||0)});
  tot.forEach((x,i)=>{put(15+i,"T",x.jenis+" (total aplikasi)");put(15+i,"U",x.jumlah)});
  const ws=XLSX.utils.aoa_to_sheet(A);
