@@ -1,4 +1,4 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ekspor Excel MBS</title>
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ekspor Excel MAS</title>
 <style>body{font:16px system-ui,sans-serif;margin:0;padding:16px;background:#0d141b;color:#e6edf3}button{width:100%;padding:14px;margin:8px 0;border:0;border-radius:10px;background:#f5a524;color:#1b1200;font:inherit;font-weight:600}button:disabled{opacity:.4}#m{margin:12px 0;color:#92a3b3}a{color:#f5a524}</style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -13,7 +13,8 @@
 const BLN=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
 const MO=["JAN","FEB","MAR","APR","MEI","JUN","JUL","AGU","SEP","OKT","NOV","DES"];
 const $=s=>document.querySelector(s),m=t=>{$("#m").textContent=t};
-let P={},ADJ={};
+let P={},ADJ={},CH={};
+function chain(P){const r={};let pv=0;for(let b=0;b<12;b++)for(const h of [1,2]){const p=P[`BMR-${b}-${h}`];let tg=0,mu=0,by=0;if(p)(p.rows||[]).forEach(x=>{tg+=x.karung/20*1000*x.harga;mu+=x.mutasi;by+=x.bayar});const pj=p?(p.pajak||0):0,ak=pv+tg+mu-by-pj;r[b+"-"+h]={pv,ak};pv=ak}return r}
 const nm=(t,b,h)=>`${t} ${MO[b]} ${h==1?1:16}`;
 const ser=t=>{if(!t)return null;const a=t.split("-").map(Number);return Date.UTC(a[0],a[1]-1,a[2])/864e5+25569};
 const ci=c=>c.split("").reduce((a,x)=>a*26+x.charCodeAt(0)-64,0)-1;
@@ -26,11 +27,14 @@ function bmrSheet(b,h,p){
  R.forEach((e,i)=>{const n=9+i;A.push([null,i+1,ser(e.tgl),e.merek,e.pengirim,e.tujuan,e.plat,e.sopir,e.karung,{f:`IF(I${n}="","",I${n}/20)`},{f:`IF(J${n}="","",J${n}*1000)`},e.harga||null,{f:`IF(L${n}="","",L${n}*K${n})`},e.mutasi||null,e.bayar||null,null,e.ket||null])});
  const l=Math.max(8+R.length,9),t=l+1,S=c=>({f:`SUM(${c}9:${c}${l})`});
  while(A.length<l)A.push([]);
- A.push([null,"T O T A L",null,null,null,null,null,null,S("I"),S("J"),S("K"),null,S("M"),S("N"),S("O"),{f:`M${t}+N${t}-O${t}`}]);
+ A.push([null,"T O T A L",null,null,null,null,null,null,S("I"),S("J"),S("K"),null,S("M"),S("N"),S("O"),{f:`M${t}+N${t}-O${t}-O${t+1}`}]);
  A.push([null,"Pajak 0,5% periode ini",null,null,null,null,null,null,null,null,null,null,null,null,(p&&p.pajak)||0]);
+ const si=CH[b+"-"+h]||{pv:0};
+ A.push([null,"Sisa periode sebelumnya",null,null,null,null,null,null,null,null,null,null,null,null,null,si.pv]);
+ A.push([null,"Sisa tagihan akhir (kumulatif)",null,null,null,null,null,null,null,null,null,null,null,null,null,{f:`P${t}+P${t+2}`}]);
  const ws=XLSX.utils.aoa_to_sheet(A);
  R.forEach((e,i)=>{const c=ws["C"+(9+i)];if(c)c.z="dd/mm/yyyy"});
- for(let r=9;r<=t+1;r++)["L","M","N","O","P"].forEach(c=>{const x=ws[c+r];if(x)x.z="#,##0"});
+ for(let r=9;r<=t+3;r++)["L","M","N","O","P"].forEach(c=>{const x=ws[c+r];if(x)x.z="#,##0"});
  ws["!cols"]=[{wch:3},{wch:5},{wch:11},{wch:22},{wch:12},{wch:18},{wch:13},{wch:14},{wch:8},{wch:7},{wch:8},{wch:9},{wch:13},{wch:12},{wch:13},{wch:14},{wch:16}];
  return ws}
 function bmsSheet(b,h,pb,ps){
@@ -65,8 +69,9 @@ function lap(P){
  const Y={a:.5*sum(S,x=>x.b>=5?n(x.kasRek):0)+n(A.yedPend),s:sum(S,x=>n(x.sewa)),m:0,t:sum(S,x=>n(x.mut)),c:sum(S,x=>jn(x,"Biaya operasional mutasi"))+n(A.yedBiaya)};
  return{N,Y}}
 function buildWB(P){
- const wb=XLSX.utils.book_new(),RK=[["Periode","Pengiriman","Karung","Ton","Tagihan","Mutasi","Dibayar","Sisa","Pajak 0,5%"]];
- for(let b=0;b<12;b++)for(const h of [1,2]){const p=P[`BMR-${b}-${h}`];if(!p)continue;let kr=0,tg=0,mu=0,by=0;(p.rows||[]).forEach(e=>{kr+=e.karung;tg+=e.karung/20*1000*e.harga;mu+=e.mutasi;by+=e.bayar});RK.push([nm("BMR",b,h),(p.rows||[]).length,kr,kr/20,tg,mu,by,tg+mu-by,p.pajak||0])}
+ CH=chain(P);
+ const wb=XLSX.utils.book_new(),RK=[["Periode","Pengiriman","Karung","Ton","Tagihan","Mutasi","Dibayar","Pajak 0,5%","Sisa sebelumnya","Sisa akhir (kumulatif)"]];
+ for(let b=0;b<12;b++)for(const h of [1,2]){const p=P[`BMR-${b}-${h}`];if(!p)continue;let kr=0,tg=0,mu=0,by=0;(p.rows||[]).forEach(e=>{kr+=e.karung;tg+=e.karung/20*1000*e.harga;mu+=e.mutasi;by+=e.bayar});RK.push([nm("BMR",b,h),(p.rows||[]).length,kr,kr/20,tg,mu,by,p.pajak||0,CH[b+"-"+h].pv,CH[b+"-"+h].ak])}
  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(RK),"REKAP");
  for(let b=0;b<12;b++)for(const h of [1,2]){
   XLSX.utils.book_append_sheet(wb,bmrSheet(b,h,P[`BMR-${b}-${h}`]),nm("BMR",b,h));
@@ -75,7 +80,7 @@ function buildWB(P){
  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([["LAPORAN KEUANGAN"],["PT. MITRA ABADI SAFA TAHUN 2026"],[],[null,null,"Jumlah"],["Total Pembayaran Expedisi",null,N.p],[],["Total pajak 0,5 %",null,N.pj],[],["Total Ongkos Expedisi",null,N.o],[],["Fee perusahaan Mitra",null,N.f],[],["Total Biaya Operasioal usaha",null,N.op],[],["Keuntungan Bersih Usaha Expedisi",null,kn],[],["Keuntungan Bersih Dalam %",null,N.p?kn/N.p*100:0]]),"NERACA");
  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([["LAPORAN KAS YED"],[],[],[null,null,"Jumlah"],["Pendapatan Expedisi",null,Y.a],[],["Pendapatan Sewa Truck Expedisi",null,Y.s],[],["Pendapatan Sewa Truck Mutasi",null,Y.m],[],["Pendapatan Expedisi 10%",null,Y.t],[],["Total Pendapatan",null,tp],[],[],["Biaya Perawatan Truck dan Operasional",null,Y.c],[],["Keuntungan Bersih Usaha Expedisi",null,tp-Y.c]]),"KAS YED");
  return wb}
-function unduh(){try{XLSX.writeFile(buildWB(P),"MBS-2026-"+new Date().toISOString().slice(0,10)+".xlsx");m("Selesai. Cek folder Download.")}catch(e){m("Gagal membuat file: "+e.message)}}
+function unduh(){try{XLSX.writeFile(buildWB(P),"MAS-2026-"+new Date().toISOString().slice(0,10)+".xlsx");m("Selesai. Cek folder Download.")}catch(e){m("Gagal membuat file: "+e.message)}}
 if(typeof firebase!="undefined"&&typeof window!="undefined"&&window.FIREBASE_CONFIG){
  $("#b").onclick=unduh;firebase.initializeApp(FIREBASE_CONFIG);
  firebase.auth().onAuthStateChanged(u=>{if(!u){m("Belum masuk. Buka aplikasi dulu, masuk, lalu kembali ke halaman ini.");return}
