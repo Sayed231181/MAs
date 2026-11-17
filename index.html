@@ -111,15 +111,16 @@ function kasAwalRow(){const s=P[key("BMS")],k=kasInfo(S.bln,S.half);return `<div
 const TARIF=[["Pak Roni",70000],["Pak Wardi",70000],["Pak Fiki",60000],["Alwi",50000],["Mira",50000],["Pak Yudi",60000]],FEEPT=TARIF.reduce((a,x)=>a+x[1],0);
 const trukOf=(b,h)=>{const p=P["BMR-"+b+"-"+h];return sums((p&&p.rows)||[]).ton/30};
 function feePtRows(){const t=trukOf(S.bln,S.half),l=(a,v,c)=>`<div class="ln${c||""}"><span>${a}</span><span>${rp(v)}</span></div>`;return `<div class="ln"><span>Jumlah truk periode ini (1 truk per 30 ton)</span><span>${fm(t)}</span></div>`+TARIF.map(x=>l(`${x[0]} (truk × ${rp(x[1])})`,t*x[1])).join("")+l("Total bagi hasil PT",t*FEEPT," t")}
+function keuntunganPeriode(b,h){const p=P["BMR-"+b+"-"+h],s=P["BMS-"+b+"-"+h];const C=((p&&p.rows)||[]).reduce((a,e)=>a+e.karung/20*1000*(num(e.harga)-num(e.d)),0);return C-trukOf(b,h)*FEEPT-(s?jn(s,"Biaya operasional ekspedisi"):0)+num(s&&s.kasAdj)}
 const pin=(t,k,l)=>`<div class="ln"><span>${l}</span><input type="number" inputmode="decimal" value="${num((P[key(t)]||{})[k])}" ${RO?"disabled":""} onchange="setP('${t}','${k}',this.value)"></div>`;
-const BMSP=()=>`<div style="margin-bottom:10px">`+kasAwalRow()+pin("BMS","feeKas","Fee manual (mengurangi kas rek, kosongkan jika tidak ada)")+feePtRows()+pin("BMS","kasRek","Keuntungan bersih periode (V15)")+pin("BMS","sewa","Sewa truk ekspedisi (T17)")+pin("BMS","mut","Mutasi (U15)")+`</div>`;
+const BMSP=()=>`<div style="margin-bottom:10px">`+kasAwalRow()+pin("BMS","feeKas","Fee manual (mengurangi kas rek, kosongkan jika tidak ada)")+feePtRows()+`<div class="ln t"><span>Keuntungan bersih periode (V15) = total keuntungan − total hasil PT − biaya operasional ekspedisi</span><span>${rp(keuntunganPeriode(S.bln,S.half))}</span></div>`+pin("BMS","kasAdj","Penyesuaian keuntungan (opsional, kosongkan jika tidak ada)")+pin("BMS","sewa","Sewa truk ekspedisi (T17)")+pin("BMS","mut","Mutasi (U15)")+`</div>`;
 const ADJ=[["pembayaran","Pembayaran ekspedisi (awal)"],["pajak","Pajak 0,5% (awal)"],["ongkos","Ongkos ekspedisi (awal)"],["fee","Fee perusahaan Mitra (awal)"],["operasional","Biaya operasional (awal)"],["yedPend","Pendapatan ekspedisi YED (awal)"],["yedBiaya","Biaya perawatan dan operasional YED (awal)"]];
 function ongkosAll(){const ks=new Set(Object.values(P).map(x=>x.b+"-"+x.h));let t=0;ks.forEach(k=>{const b=P["BMR-"+k],s=P["BMS-"+k];t+=b&&(b.rows||[]).some(e=>num(e.d)>0)?sums2(b.rows):(s?jn(s,"Ongkos ekspedisi"):0)});return t}
 const sums2=r=>r.reduce((a,e)=>a+e.karung/20*1000*num(e.d),0);
 function lapVal(){const A=CFG.adj||{};
  const bmr=sumD("BMR",x=>{const s=sums(x.rows||[]);return s.tag+s.mut});
  const N={pembayaran:bmr+num(A.pembayaran),pajak:sumD("BMR",x=>num(x.pajak))+num(A.pajak),ongkos:ongkosAll()+num(A.ongkos),fee:sumD("BMR",x=>sums(x.rows||[]).ton/30*FEEPT)+num(A.fee),operasional:sumD("BMS",x=>jn(x,"Biaya operasional ekspedisi"))+num(A.operasional)};
- const Y={pendapatan:.5*sumD("BMS",x=>x.b>=5?num(x.kasRek):0)+num(A.yedPend),sewa:sumD("BMS",x=>num(x.sewa)),mutasi:0,p10:sumD("BMS",x=>num(x.mut)),biaya:sumD("BMS",x=>jn(x,"Biaya operasional mutasi"))+num(A.yedBiaya)};
+ const Y={pendapatan:.5*sumD("BMS",x=>x.b>=5?keuntunganPeriode(x.b,x.h):0)+num(A.yedPend),sewa:sumD("BMS",x=>num(x.sewa)),mutasi:0,p10:sumD("BMS",x=>num(x.mut)),biaya:sumD("BMS",x=>jn(x,"Biaya operasional mutasi"))+num(A.yedBiaya)};
  return{N,Y}}
 function vLap(){const {N,Y}=lapVal(),kn=N.pembayaran-N.pajak-N.ongkos-N.fee-N.operasional,tp=Y.pendapatan+Y.sewa+Y.mutasi+Y.p10,ky=tp-Y.biaya;
  const ln=(l,v)=>`<div class="ln"><span>${l}</span><span>${rp(v)}</span></div>`;
