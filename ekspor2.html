@@ -50,7 +50,7 @@ function bmsSheet(b,h,pb,ps){
  put(2,"T","PERIODE");put(3,"T",(h==1?"1 - 15 ":"16 - akhir ")+MO[b]);
  put(5,"B","LAPORAN KEUANGAN EKSPEDISI");put(5,"N","LAPORAN BIAYA OPERASIONAL");put(5,"T","LAPORAN KAS");
  [["B","No"],["C","Tanggal"],["D","Ekspedisi"],["H","Ambilan Abang Adi"],["K","Mutasi dan Ongkos Mobil"],["N","Biaya Operasional"],["R","Pembagian Hasil PT"],["T","Saldo Abang Adi"],["V","KAS REK EXPEDISI"]].forEach(a=>put(7,a[0],a[1]));
- [["C","Transaksi"],["D","Harga Per kilo"],["E","Ongkos"],["F","Mobil yed (mobil kun...)"],["G","Laba"],["H","Tanggal"],["I","Jumlah"],["J","Keterangan"],["K","Ongkos Mobil"],["L","Transfer Ke Mutasi"],["N","Tanggal"],["O","Keterangan"],["P","Ekspedisi"],["Q","Mutasi"],["T","Keuntungan"],["U","Sisa Uang Abang Adi"]].forEach(a=>put(8,a[0],a[1]));
+ [["R","Jumlah Truck"],["C","Transaksi"],["D","Harga Per kilo"],["E","Ongkos"],["F","Mobil yed (mobil kun...)"],["G","Laba"],["H","Tanggal"],["I","Jumlah"],["J","Keterangan"],["K","Ongkos Mobil"],["L","Transfer Ke Mutasi"],["N","Tanggal"],["O","Keterangan"],["P","Ekspedisi"],["Q","Mutasi"],["T","Keuntungan"],["U","Sisa Uang Abang Adi"]].forEach(a=>put(8,a[0],a[1]));
  R.forEach((e,i)=>{const n=9+i,q="'"+bn+"'!";
   put(n,"B",i+1);put(n,"C",ser(e.tgl));put(n,"D",e.d||null);put(n,"E",{f:`IF(${q}K${n}="","",${q}K${n}*D${n})`});put(n,"F",e.f||null);
   put(n,"G",{f:gf?`N(${q}M${n})-E${n}-F${n}`:`IF(${q}M${n}="","",${q}M${n}-E${n})`});put(n,"K",e.k||null);put(n,"L",{f:`IF(${q}N${n}="","",${q}N${n}-K${n})`})});
@@ -61,9 +61,10 @@ function bmsSheet(b,h,pb,ps){
  put(t,"B","TOTAL");["D","E","F","G","I","K","L","P","Q"].forEach(c=>put(t,c,Sf(c)));
  [["feeMitra","Total bagi hasil PT (R30)"],["kasRek","Keuntungan bersih periode (V15)"],["sewa","Sewa truk ekspedisi (T17)"],["mut","Mutasi (U15)"],["feeKas","Fee manual (mengurangi kas rek)"]].forEach((a,i)=>{put(10+i,"T",a[1]);put(10+i,"U",(ps&&ps[a[0]])||0)});
  put(8,"V",kasInfo(b,h).ak);
+ put(9,"R",{f:`'${bn}'!J${Math.max(8+R.length,9)+1}/30`});
  const ws=XLSX.utils.aoa_to_sheet(A);
  for(let r=9;r<=t;r++)["C","H","N"].forEach(c=>{const x=ws[c+r];if(x&&x.t=="n"&&r<t)x.z="dd/mm/yyyy"});
- ws["!cols"]=[{wch:3},{wch:5},{wch:11},{wch:12},{wch:13},{wch:14},{wch:13},{wch:11},{wch:13},{wch:18},{wch:14},{wch:14},{wch:3},{wch:11},{wch:22},{wch:13},{wch:13},{wch:3},{wch:3},{wch:30},{wch:16}];
+ ws["!cols"]=[{wch:3},{wch:5},{wch:11},{wch:12},{wch:13},{wch:14},{wch:13},{wch:11},{wch:13},{wch:18},{wch:14},{wch:14},{wch:3},{wch:11},{wch:22},{wch:13},{wch:13},{wch:12},{wch:3},{wch:30},{wch:16}];
  return ws}
 function lap(P){
  const A=ADJ||{},n=x=>+x||0;
@@ -75,8 +76,8 @@ function lap(P){
  return{N,Y}}
 function buildWB(P){
  CH=chain(P);KP=P;
- const wb=XLSX.utils.book_new(),RK=[["Periode","Pengiriman","Karung","Ton","Tagihan","Mutasi","Dibayar","Pajak 0,5%","Sisa sebelumnya","Sisa akhir (kumulatif)"]];
- for(let b=0;b<12;b++)for(const h of [1,2]){const p=P[`BMR-${b}-${h}`];if(!p)continue;let kr=0,tg=0,mu=0,by=0;(p.rows||[]).forEach(e=>{kr+=e.karung;tg+=e.karung/20*1000*e.harga;mu+=e.mutasi;by+=nn(e.bayar)});RK.push([nm("BMR",b,h),(p.rows||[]).length,kr,kr/20,tg,mu,by+nn(p.bayar),p.pajak||0,CH[b+"-"+h].pv,CH[b+"-"+h].ak])}
+ const wb=XLSX.utils.book_new(),RK=[["Periode","Pengiriman","Karung","Ton","Jumlah truk","Tagihan","Mutasi","Dibayar","Pajak 0,5%","Sisa sebelumnya","Sisa akhir (kumulatif)"]];
+ for(let b=0;b<12;b++)for(const h of [1,2]){const p=P[`BMR-${b}-${h}`];if(!p)continue;let kr=0,tg=0,mu=0,by=0;(p.rows||[]).forEach(e=>{kr+=e.karung;tg+=e.karung/20*1000*e.harga;mu+=e.mutasi;by+=nn(e.bayar)});RK.push([nm("BMR",b,h),(p.rows||[]).length,kr,kr/20,kr/20/30,tg,mu,by+nn(p.bayar),p.pajak||0,CH[b+"-"+h].pv,CH[b+"-"+h].ak])}
  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(RK),"REKAP");
  for(let b=0;b<12;b++)for(const h of [1,2]){
   XLSX.utils.book_append_sheet(wb,bmrSheet(b,h,P[`BMR-${b}-${h}`]),nm("BMR",b,h));
