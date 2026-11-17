@@ -59,9 +59,11 @@ function bmsSheet(b,h,pb,ps){
  opr.forEach((e,i)=>{const n=9+i;put(n,"N",ser(e.tgl));put(n,"O",e.ket||null);put(n,/mutasi/.test(e.jenis)?"Q":"P",e.jumlah)});
  const l=Math.max(9,8+R.length+kx.length,8+amb.length,8+opr.length),t=l+1,Sf=c=>({f:`SUM(${c}9:${c}${l})`});
  put(t,"B","TOTAL");["D","E","F","G","I","K","L","P","Q"].forEach(c=>put(t,c,Sf(c)));
- [["feeMitra","Total bagi hasil PT (R30)"],["kasRek","Keuntungan bersih periode (V15)"],["sewa","Sewa truk ekspedisi (T17)"],["mut","Mutasi (U15)"],["feeKas","Fee manual (mengurangi kas rek)"]].forEach((a,i)=>{put(10+i,"T",a[1]);put(10+i,"U",(ps&&ps[a[0]])||0)});
+ [["feeMitra","Total bagi hasil PT (R30)"],["kasRek","Keuntungan bersih periode (V15)"],["sewa","Sewa truk ekspedisi (T17)"],["mut","Mutasi (U15)"],["feeKas","Fee manual (mengurangi kas rek)"]].forEach((a,i)=>{put(10+i,"T",a[1]);put(10+i,"U",a[0]=="feeMitra"?{f:"R30"}:(ps&&ps[a[0]])||0)});
  put(8,"V",kasInfo(b,h).ak);
  put(9,"R",{f:`'${bn}'!J${Math.max(8+R.length,9)+1}/30`});
+ [[14,"Pak Roni",70000],[17,"Pak Wardi",70000],[20,"Pak Fiki",60000],[23,"Alwi",50000],[26,"Mira",50000]].forEach(a=>{put(a[0],"R",a[1]);put(a[0]+1,"R",{f:`R9*${a[2]}`})});
+ put(29,"R","Total Bagi Hasil PT");put(30,"R",{f:"R15+R18+R21+R24+R27"});
  const ws=XLSX.utils.aoa_to_sheet(A);
  for(let r=9;r<=t;r++)["C","H","N"].forEach(c=>{const x=ws[c+r];if(x&&x.t=="n"&&r<t)x.z="dd/mm/yyyy"});
  ws["!cols"]=[{wch:3},{wch:5},{wch:11},{wch:12},{wch:13},{wch:14},{wch:13},{wch:11},{wch:13},{wch:18},{wch:14},{wch:14},{wch:3},{wch:11},{wch:22},{wch:13},{wch:13},{wch:12},{wch:3},{wch:30},{wch:16}];
@@ -71,7 +73,7 @@ function lap(P){
  const B=Object.values(P).filter(x=>x.t=="BMR"),S=Object.values(P).filter(x=>x.t=="BMS");
  const jn=(x,j)=>sum((x.rows||[]).filter(r=>r.jenis==j),r=>n(r.jumlah));
  const ks=new Set(Object.values(P).map(x=>x.b+"-"+x.h));let og=0;ks.forEach(k=>{const b=P["BMR-"+k],s=P["BMS-"+k];og+=b&&(b.rows||[]).some(r=>n(r.d)>0)?sum(b.rows,r=>r.karung/20*1000*n(r.d)):(s?jn(s,"Ongkos ekspedisi"):0)});
- const N={p:sum(B,x=>sum(x.rows||[],e=>e.karung/20*1000*e.harga+e.mutasi))+n(A.pembayaran),pj:sum(B,x=>n(x.pajak))+n(A.pajak),o:og+n(A.ongkos),f:sum(S,x=>n(x.feeMitra))+n(A.fee),op:sum(S,x=>jn(x,"Biaya operasional ekspedisi"))+n(A.operasional)};
+ const N={p:sum(B,x=>sum(x.rows||[],e=>e.karung/20*1000*e.harga+e.mutasi))+n(A.pembayaran),pj:sum(B,x=>n(x.pajak))+n(A.pajak),o:og+n(A.ongkos),f:sum(B,x=>sum(x.rows||[],e=>e.karung/20)/30*300000)+n(A.fee),op:sum(S,x=>jn(x,"Biaya operasional ekspedisi"))+n(A.operasional)};
  const Y={a:.5*sum(S,x=>x.b>=5?n(x.kasRek):0)+n(A.yedPend),s:sum(S,x=>n(x.sewa)),m:0,t:sum(S,x=>n(x.mut)),c:sum(S,x=>jn(x,"Biaya operasional mutasi"))+n(A.yedBiaya)};
  return{N,Y}}
 function buildWB(P){
