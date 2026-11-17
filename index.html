@@ -149,8 +149,13 @@ async function simpanG(){const e={tgl:$("#g_tgl").value,jenis:$("#g_jenis").valu
 async function hapusG(){const id=S.edit;if(confirm("Hapus catatan ini?")&&await mut("BMS",r=>r.filter(x=>x.id!=id)))dg.close()}
 async function save(name,data){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:name.endsWith(".csv")?"text/csv":"application/json"}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function bakJson(){save(`cadangan-mbs-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify({v:1,periode:P,cfg:CFG}))}
-function csv(all){const r=[["Periode","No","Tanggal","Merek","Pengirim","Tujuan","Plat","Sopir","Karung","Ton","Kg","Harga","Tagihan","Mutasi","Dibayar","Total","Sisa","Keterangan"]];
- Object.keys(P).filter(k=>P[k].t=="BMR"&&(all||k==key("BMR"))).sort((a,b)=>{const x=P[a],y=P[b];return x.b-y.b||x.h-y.h}).forEach(k=>{const p=P[k];(p.rows||[]).forEach((e,i)=>{const c=calc(e);r.push([`${BLN[p.b]} ${p.h==1?"1":"16"}`,i+1,e.tgl,e.merek,e.pengirim,e.tujuan,e.plat,e.sopir,e.karung,c.ton,c.kg,e.harga,c.tag,e.mutasi,e.bayar,c.total,c.sisa,e.ket])})});
+function csv(all){const H=["Periode","No","Tanggal","Merek","Pengirim","Tujuan","Plat","Sopir","Karung","Ton","Kg","Harga","Ongkos per kg","Total ongkos","Tagihan","Mutasi","Dibayar","Total","Keterangan"];const r=[H];
+ const ks=Object.keys(P).filter(k=>P[k].t=="BMR"&&(all||k==key("BMR"))).sort((a,b)=>{const x=P[a],y=P[b];return x.b-y.b||x.h-y.h});
+ let T={karung:0,ton:0,kg:0,tag:0,ong:0,mut:0,bay:0,tot:0};
+ ks.forEach(k=>{const p=P[k];(p.rows||[]).forEach((e,i)=>{const c=calc(e),og=num(e.d),to=c.kg*og;T.karung+=e.karung;T.ton+=c.ton;T.kg+=c.kg;T.tag+=c.tag;T.ong+=to;T.mut+=num(e.mutasi);T.bay+=num(e.bayar);T.tot+=c.total;
+  r.push([`${BLN[p.b]} ${p.h==1?"1":"16"}`,i+1,e.tgl,e.merek,e.pengirim,e.tujuan,e.plat,e.sopir,e.karung,c.ton,c.kg,e.harga,og,to,c.tag,e.mutasi,e.bayar,c.total,e.ket])})});
+ r.push(["TOTAL","","","","","","","",T.karung,T.ton,T.kg,"",ks.length?"":"",T.ong,T.tag,T.mut,T.bay,T.tot,""]);
+ r.push(["","","","","","","","","","","","","","Total keuntungan (tagihan − ongkos)","",""," ",T.tag-T.ong,""]);
  save(all?"bmr-2026-semua.csv":`bmr-${BLN[S.bln]}-${S.half==1?"1":"16"}.csv`,"\ufeff"+r.map(x=>x.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\r\n"))}
 async function restore(inp){const f=inp.files[0];if(!f||!db)return;try{const j=JSON.parse(await f.text()),ids=Object.keys(j.periode||{});if(!ids.length||!confirm(`Pulihkan ${ids.length} periode? Data periode yang sama akan diganti.`))return;
  for(const id of ids)await db.doc("periode/"+id).set(j.periode[id]);if(j.cfg)await db.doc("cfg/laporan").set(j.cfg);toast("Pemulihan selesai")}catch(e){toast("File cadangan tidak valid atau gagal ditulis.")}inp.value=""}
