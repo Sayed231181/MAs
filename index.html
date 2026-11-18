@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>MAS Ekspedisi 2026</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0b2545"><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ctext y='.9em' font-size='9'%3E%F0%9F%9A%9A%3C/text%3E%3C/svg%3E">
+<title>MAS Ekspedisi</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0b2545"><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ctext y='.9em' font-size='9'%3E%F0%9F%9A%9A%3C/text%3E%3C/svg%3E">
 <style>
 :root{--bg:#0c1914;--cd:#14302a;--tx:#f1f5f3;--mu:#9fb8ae;--nv:#123d33;--am:#f0a94a;--bd:#24463d;--bad:#ff8a80;--ok:#6fe0a6;color-scheme:dark}
 :root:not([data-theme="light"]){}
@@ -45,7 +45,7 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 #toast{position:fixed;left:14px;right:14px;bottom:calc(130px + env(safe-area-inset-bottom,0px));background:#14212b;color:#fff;padding:10px 12px;border-radius:8px;display:none;z-index:9}
 </style></head><body>
 <header><div class="top"><div><h1>MAS Ekspedisi</h1><div style="font-size:13px;color:#9fb8ae">PT. Mitra Abadi Safa</div></div><span id="st"></span></div>
-<div class="ctl" id="ctl"><select id="sb"></select><select id="sh"><option value="1">Tgl 1–15</option><option value="2">Tgl 16–akhir</option></select></div></header>
+<div class="ctl" id="ctl"><select id="sy" style="max-width:110px"><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><select id="sb"></select><select id="sh"><option value="1">Tgl 1–15</option><option value="2">Tgl 16–akhir</option></select></div></header>
 <main id="app"></main><div id="toast"></div>
 <button class="fab" id="fab" onclick="S.tab=='bms'?openG():openF()" aria-label="Tambah">+</button>
 <nav><button id="n_home" onclick="tab('home')">Beranda</button><button id="n_bmr" onclick="tab('bmr')">Transaksi</button><button id="n_bms" onclick="tab('bms')">Keuangan</button><button id="n_lap" onclick="tab('lap')">Laporan</button><button id="n_bak" onclick="tab('bak')">Lainnya</button></nav>
@@ -79,7 +79,7 @@ const YED=[["pendapatan","Pendapatan ekspedisi"],["sewa","Pendapatan sewa truk e
 const $=s=>document.querySelector(s),dlg=$("#dlg"),dg=$("#dg");
 const now=new Date();
 let db=null,RO=false,ready=false,busy=false,P={},CFG={neraca:{},yed:{}};
-let S={tab:"home",bln:now.getFullYear()==2026?now.getMonth():0,half:now.getDate()<=15?1:2,edit:null};
+let S={tab:"home",year:Math.min(2030,Math.max(2026,now.getFullYear())),bln:now.getFullYear()==2026?now.getMonth():0,half:now.getDate()<=15?1:2,edit:null};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num=v=>parseFloat(v)||0,rp=n=>"Rp "+Math.round(n||0).toLocaleString("id-ID"),fm=n=>(n||0).toLocaleString("id-ID",{maximumFractionDigits:2});
 const fd=t=>t?t.slice(8)+"/"+t.slice(5,7):"–";
@@ -90,7 +90,7 @@ function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";cl
 async function mut(t,fn){
  if(!db||RO){toast("Tidak bisa menyimpan: sinkronisasi belum tersambung atau akses hanya baca.");return false}
  if(busy)return false;busy=true;
- try{const ref=db.doc("periode/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur.rows=fn(cur.rows||[]);await ref.set(cur);return true}
+ try{const ref=db.doc(PC()+"/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur.rows=fn(cur.rows||[]);await ref.set(cur);return true}
  catch(e){toast("Gagal menyimpan ("+(e.code||"error")+"). Coba lagi.");return false}finally{busy=false}}
 function tab(t){S.tab=t;render();scrollTo(0,0)}
 function render(){
@@ -100,11 +100,11 @@ function render(){
  $("#sb").value=S.bln;$("#sh").value=S.half;
  $("#app").innerHTML=({home:vHome,bmr:vBmr,bms:vBms,lap:vLap,bak:vBak})[S.tab]()}
 function card(e){const c=calc(e);return `<div class="cd" onclick="openF('${e.id}')"><div class="r"><b>${esc(e.merek||"–")}</b><span class="mu">${fd(e.tgl)}</span></div><div class="mu">${esc(e.pengirim||"–")} → ${esc(e.tujuan||"–")}</div><div class="mu">${esc(e.plat)} ${e.sopir?"("+esc(e.sopir)+")":""}</div>${num(e.d)?"":'<div class="bad" style="font-size:12px;margin-top:4px">⚠ Ongkos per kg belum diisi</div>'}<div class="r g2"><span>${fm(e.karung)} karung = ${fm(c.ton)} ton</span><b>${rp(c.total)}</b></div>${e.bayar?`<div class="r"><span class="mu">Dibayar ${rp(e.bayar)}</span></div>`:""}</div>`}
-function vHome(){const b=S.bln,h=S.half,p=P["BMR-"+b+"-"+h],q=sums((p&&p.rows)||[]),si=sisaInfo(b,h),kn=keuntunganRinci(b,h),per=`${h==1?"1–15":"16–31"} ${BLN[b]} 2026`;
+function vHome(){const b=S.bln,h=S.half,p=P["BMR-"+b+"-"+h],q=sums((p&&p.rows)||[]),si=sisaInfo(b,h),kn=keuntunganRinci(b,h),per=`${h==1?"1–15":"16–31"} ${BLN[b]} ${S.year}`;
  const all=Object.values(P).filter(x=>x.t=="BMR");let n=0,ton=0,tag=0,by=0,pjAll=0;all.forEach(x=>{const z=sums(x.rows||[]);n+=(x.rows||[]).length;ton+=z.ton;tag+=z.tag+z.mut;by+=z.bay+num(x.bayar);pjAll+=num(x.pajak)});
  const sisaAll=tag-by-pjAll,dibayar=by;
  const t=(v,l)=>`<div style="background:rgba(255,255,255,.07);border-radius:16px;padding:14px"><div style="font-size:24px;font-weight:700">${v}</div><div style="font-size:14px;color:#9fb8ae;margin-top:4px">${l}</div></div>`;
- return `<div class="sum" style="padding:20px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">PERIODE ${per.toUpperCase()}</div><div style="font-size:34px;font-weight:800;margin:8px 0 2px">${rp(q.tag+q.mut)}</div><div style="font-size:14px;color:#9fb8ae">Total tagihan ke PT periode ini</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">${t(fm(q.ton/30),"Jumlah truk")}${t(`${fm(q.ton)} ton`,`${fm(q.krg)} karung`)}${t(rp(kasInfo(b,h).ak),"Saldo Rekening")}${t(rp(si.akhir),"Sisa tagihan PT")}</div><button onclick="openF()" style="width:100%;padding:16px;border:0;border-radius:16px;background:var(--am);color:#1b1200;font-size:18px;font-weight:700">+ Catat pengiriman</button></div><div class="sum" style="margin-top:12px;padding:18px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">SEPANJANG 2026</div><div class="ln" style="font-size:16px"><span>Pengiriman</span><span>${n} (${fm(ton)} ton)</span></div><div class="ln" style="font-size:16px"><span>Total tagihan PT</span><span>${rp(tag)}</span></div><div class="ln" style="font-size:16px"><span>Sudah dibayar PT</span><span>${rp(dibayar)}</span></div><div class="ln t" style="font-size:16px"><span>Sisa tagihan</span><span>${rp(sisaAll)}</span></div></div>`}
+ return `<div class="sum" style="padding:20px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">PERIODE ${per.toUpperCase()}</div><div style="font-size:34px;font-weight:800;margin:8px 0 2px">${rp(q.tag+q.mut)}</div><div style="font-size:14px;color:#9fb8ae">Total tagihan ke PT periode ini</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">${t(fm(q.ton/30),"Jumlah truk")}${t(`${fm(q.ton)} ton`,`${fm(q.krg)} karung`)}${t(rp(kasInfo(b,h).ak),"Saldo Rekening")}${t(rp(si.akhir),"Sisa tagihan PT")}</div><button onclick="openF()" style="width:100%;padding:16px;border:0;border-radius:16px;background:var(--am);color:#1b1200;font-size:18px;font-weight:700">+ Catat pengiriman</button></div><div class="sum" style="margin-top:12px;padding:18px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">SEPANJANG ${S.year}</div><div class="ln" style="font-size:16px"><span>Pengiriman</span><span>${n} (${fm(ton)} ton)</span></div><div class="ln" style="font-size:16px"><span>Total tagihan PT</span><span>${rp(tag)}</span></div><div class="ln" style="font-size:16px"><span>Sudah dibayar PT</span><span>${rp(dibayar)}</span></div><div class="ln t" style="font-size:16px"><span>Sisa tagihan</span><span>${rp(sisaAll)}</span></div></div>`}
 function vBmr(){const es=rows("BMR"),s=sums(es),si=sisaInfo(S.bln,S.half);
  return `<div class="sum"><div style="color:#cfd9e4;font-size:13px">Sisa tagihan BMR (kumulatif) · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="big">${rp(si.akhir)}</div><div class="g"><span>Pengiriman <b>${es.length}</b></span><span>Karung <b>${fm(s.krg)}</b></span><span>Berat <b>${fm(s.ton)} ton</b></span><span>Jumlah truk <b>${fm(s.ton/30)}</b></span><span>Tagihan <b>${rp(s.tag)}</b></span><span>Mutasi <b>${rp(s.mut)}</b></span><span>Dibayar <b>${rp(si.bay)}</b></span><span>Sisa sebelumnya <b>${rp(si.pv)}</b></span><span>Pajak 0,5% <b>${rp(si.pj)}</b></span></div>${tagihanPeriodeHtml()}</div>`+pin("BMR","bayar","Pembayaran periode ini (manual, mengurangi sisa, menambah kas rek)")+pin("BMR","pajak","Pajak 0,5% periode ini (mengurangi sisa, masuk Neraca)")+(es.length?es.map(card).join(""):`<div class="empty">Belum ada pengiriman di periode ini.${RO?"":"<br>Ketuk + untuk menambah."}</div>`)}
 function vBms(){return '<div class="grid">'+vBmsIn()+'</div>'}
@@ -112,6 +112,8 @@ function tambahKasRow(){const s=P[key("BMS")]||{};return `<div class="ln"><span>
 async function simpanTambahKas(){if(!db||RO)return;const v=document.getElementById("tk").value;await setP("BMS","tambahKas",v);}
 function vBmsIn(){const es=rows("BMS").filter(e=>JENIS.includes(e.jenis));const by=JENIS.map(j=>[j,es.filter(e=>e.jenis==j).reduce((a,e)=>a+e.jumlah,0)]).filter(x=>x[1]);
  return `<div class="sum"><div style="color:#cfd9e4;font-size:13px">Keuangan BMS · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="g" style="grid-template-columns:1fr">${by.length?by.map(([j,v])=>`<span class="r"><span>${esc(jl(j))}</span><b>${rp(v)}</b></span>`).join(""):"<span>Belum ada catatan.</span>"}</div>${kasHtml()}</div>`+BMSP()+aaHtml()+es.map(e=>`<div class="cd" onclick="openG('${e.id}')"><div class="r"><b>${esc(jl(e.jenis))}</b><b>${rp(e.jumlah)}</b></div><div class="mu">${fd(e.tgl)} ${esc(e.ket)}</div></div>`).join("")}
+function PC(){return S.year==2026?"periode":"periode"+S.year}
+function CF(){return S.year==2026?"cfg/laporan":"cfg"+S.year+"/laporan"}
 const sumD=(t,f)=>Object.values(P).filter(x=>x.t==t).reduce((a,x)=>a+f(x),0);
 const jn=(x,j)=>(x.rows||[]).filter(r=>r.jenis==j).reduce((a,r)=>a+r.jumlah,0);
 function sisaInfo(b,h){const p=P["BMR-"+b+"-"+h],q=sums((p&&p.rows)||[]),pj=p?num(p.pajak):0;let pb=b,ph=h-1;if(ph<1){ph=2;pb=b-1}const pv=pb<0?0:sisaInfo(pb,ph).akhir;const by=q.bay+num(p&&p.bayar);return{pv,tag:q.tag,mut:q.mut,bay:by,pj,akhir:pv+q.tag+q.mut-by-pj}}
@@ -152,9 +154,9 @@ function vLap(){const {N,Y}=lapVal(),kn=N.pembayaran-N.pajak-N.ongkos-N.fee-N.op
 function vBak(){return `<button class="pl" onclick="firebase.auth().signOut().then(()=>location.reload())">Keluar akun</button><a class="pl" href="ekspor2.html" style="display:block;text-align:center;text-decoration:none;font-weight:600">Unduh Excel (.xlsx)</a><h2>Cadangan data</h2><p class="mu">Data tersimpan di database aplikasi ini dan tampil sama di semua HP yang membukanya. Unduh cadangan berkala sebagai salinan di luar aplikasi.</p>
  <button class="pl" onclick="bakJson()">Unduh cadangan lengkap (JSON)</button><button class="pl" onclick="csv(true)">Unduh semua BMR (CSV)</button><button class="pl" onclick="csv(false)">Unduh BMR periode ini (CSV)</button>
  ${RO?"":`<h2>Pulihkan</h2><p class="mu">Pilih file cadangan JSON. Periode di dalam file akan menggantikan data periode yang sama.</p><input type="file" accept=".json,application/json" onchange="restore(this)">`}`}
-async function setA(k,v){if(!db||RO)return;CFG.adj=CFG.adj||{};CFG.adj[k]=num(v);try{await db.doc("cfg/laporan").set({adj:CFG.adj});render()}catch(e){toast("Gagal menyimpan.")}}
-async function setP(t,k,v){if(!db||RO||busy)return;busy=true;try{const ref=db.doc("periode/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur[k]=(v===""?null:num(v));await ref.set(cur);toast("Tersimpan")}catch(e){toast("Gagal menyimpan ("+(e.code||"error")+").")}finally{busy=false}}
-function defDate(){return `2026-${String(S.bln+1).padStart(2,"0")}-${S.half==1?"01":"16"}`}
+async function setA(k,v){if(!db||RO)return;CFG.adj=CFG.adj||{};CFG.adj[k]=num(v);try{await db.doc(CF()).set({adj:CFG.adj});render()}catch(e){toast("Gagal menyimpan.")}}
+async function setP(t,k,v){if(!db||RO||busy)return;busy=true;try{const ref=db.doc(PC()+"/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur[k]=(v===""?null:num(v));await ref.set(cur);toast("Tersimpan")}catch(e){toast("Gagal menyimpan ("+(e.code||"error")+").")}finally{busy=false}}
+function defDate(){return `${S.year}-${String(S.bln+1).padStart(2,"0")}-${S.half==1?"01":"16"}`}
 function openF(id){if(RO)return;S.edit=id||null;const e=id?rows("BMR").find(x=>x.id==id)||{}:{tgl:defDate()};F.forEach(k=>$("#f_"+k).value=e[k]??"");$("#del").style.display=id?"":"none";$("#ft").textContent=id?"Ubah pengiriman":"Pengiriman baru";prev();dlg.showModal()}
 function autoS(){const p=PLAT.find(x=>x[0].toLowerCase()==$("#f_plat").value.trim().toLowerCase());if(p&&!$("#f_sopir").value)$("#f_sopir").value=p[1]}
 function vals(){const e={};F.forEach(k=>e[k]=$("#f_"+k).value.trim());["karung","harga","mutasi","d","f","k"].forEach(k=>e[k]=num(e[k]));return e}
@@ -175,9 +177,10 @@ function csv(all){const H=["Periode","No","Tanggal","Merek","Pengirim","Tujuan",
   r.push([`${BLN[p.b]} ${p.h==1?"1":"16"}`,i+1,e.tgl,e.merek,e.pengirim,e.tujuan,e.plat,e.sopir,e.karung,c.ton,c.kg,e.harga,og,to,c.tag,e.mutasi,e.bayar,c.total,e.ket])})});
  r.push(["TOTAL","","","","","","","",T.karung,T.ton,T.kg,"",ks.length?"":"",T.ong,T.tag,T.mut,T.bay,T.tot,""]);
  r.push(["","","","","","","","","","","","","","Total keuntungan (tagihan − ongkos)","",""," ",T.tag-T.ong,""]);
- save(all?"bmr-2026-semua.csv":`bmr-${BLN[S.bln]}-${S.half==1?"1":"16"}.csv`,"\ufeff"+r.map(x=>x.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\r\n"))}
+ save(all?`bmr-${S.year}-semua.csv`:`bmr-${BLN[S.bln]}-${S.half==1?"1":"16"}.csv`,"\ufeff"+r.map(x=>x.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\r\n"))}
 async function restore(inp){const f=inp.files[0];if(!f||!db)return;try{const j=JSON.parse(await f.text()),ids=Object.keys(j.periode||{});if(!ids.length||!confirm(`Pulihkan ${ids.length} periode? Data periode yang sama akan diganti.`))return;
- for(const id of ids)await db.doc("periode/"+id).set(j.periode[id]);if(j.cfg)await db.doc("cfg/laporan").set(j.cfg);toast("Pemulihan selesai")}catch(e){toast("File cadangan tidak valid atau gagal ditulis.")}inp.value=""}
+ for(const id of ids)await db.doc(PC()+"/"+id).set(j.periode[id]);if(j.cfg)await db.doc(CF()).set(j.cfg);toast("Pemulihan selesai")}catch(e){toast("File cadangan tidak valid atau gagal ditulis.")}inp.value=""}
+$("#sy").value=S.year;$("#sy").onchange=e=>setYear(+e.target.value);
 $("#sb").innerHTML=BLN.map((m,i)=>`<option value="${i}">${m}</option>`).join("");
 $("#sb").onchange=e=>{S.bln=+e.target.value;render()};$("#sh").onchange=e=>{S.half=+e.target.value;render()};
 $("#dm").innerHTML=MEREK.map(x=>`<option value="${esc(x)}">`).join("");$("#dt").innerHTML=TUJ.map(x=>`<option value="${esc(x)}">`).join("");$("#dp").innerHTML=PLAT.map(x=>`<option value="${x[0]}">${esc(x[1])}</option>`).join("");
@@ -187,8 +190,12 @@ function startSync(){if(startSync.d)return;startSync.d=1;
  const wrap=s=>({exists:s.exists,data:()=>s.data()});
  db={doc:p=>{const r=fx.doc(p);return{get:async()=>wrap(await r.get()),set:d=>{r.set(d).catch(e=>toast("Gagal menyimpan ke server ("+(e.code||"error")+")"));return Promise.resolve()},onSnapshot:(n,e)=>r.onSnapshot(x=>n(wrap(x)),e)}},collection:p=>{const c=fx.collection(p);return{onSnapshot:(n,e)=>c.onSnapshot(x=>n({docs:x.docs.map(d=>({id:d.id,data:()=>d.data()}))}),e)}}};
  render();
- db.collection("periode").onSnapshot(s=>{P={};s.docs.forEach(d=>{const x=d.data();if(x)P[`${x.t}-${x.b}-${x.h}`]=x});ready=true;render()},()=>toast("Sinkronisasi terputus. Muat ulang halaman."));
- db.doc("cfg/laporan").onSnapshot(s=>{if(s.exists){CFG=s.data();if(S.tab=="lap"&&!(document.activeElement&&document.activeElement.matches("input")))render()}},()=>{})}
+ subscribeYear();}
+let UNS=[];
+function subscribeYear(){UNS.forEach(u=>{try{u()}catch(e){}});UNS=[];P={};CFG={};ready=false;
+ UNS.push(db.collection(PC()).onSnapshot(s=>{P={};s.docs.forEach(d=>{const x=d.data();if(x)P[`${x.t}-${x.b}-${x.h}`]=x});ready=true;render()},()=>toast("Sinkronisasi terputus. Muat ulang halaman.")));
+ UNS.push(db.doc(CF()).onSnapshot(s=>{if(s.exists){CFG=s.data();if(S.tab=="lap"&&!(document.activeElement&&document.activeElement.matches("input")))render()}},()=>{}));render()}
+function setYear(y){S.year=y;S.edit=null;if(db)subscribeYear();else render()}
 async function masuk(){try{await firebase.auth().signInWithEmailAndPassword($("#l_em").value.trim(),$("#l_pw").value)}catch(e){$("#l_err").textContent="Email atau kata sandi salah."}}
 addEventListener("online",render);addEventListener("offline",render);
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
