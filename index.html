@@ -44,11 +44,11 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 .btns{display:flex;gap:8px}.btns button{flex:1;padding:12px;border-radius:8px;border:1px solid var(--bd);font:inherit;background:var(--bg);color:var(--tx)}.btns .p{background:var(--nv);color:#fff;border:0;font-weight:600;flex:2}
 #toast{position:fixed;left:14px;right:14px;bottom:calc(130px + env(safe-area-inset-bottom,0px));background:#14212b;color:#fff;padding:10px 12px;border-radius:8px;display:none;z-index:9}
 </style></head><body>
-<header><div class="top"><h1>MAS Ekspedisi 2026</h1><span id="st"></span></div>
+<header><div class="top"><div><h1>MAS Ekspedisi</h1><div style="font-size:13px;color:#9fb8ae">PT. Mitra Abadi Safa</div></div><span id="st"></span></div>
 <div class="ctl" id="ctl"><select id="sb"></select><select id="sh"><option value="1">Tgl 1–15</option><option value="2">Tgl 16–akhir</option></select></div></header>
 <main id="app"></main><div id="toast"></div>
 <button class="fab" id="fab" onclick="S.tab=='bms'?openG():openF()" aria-label="Tambah">+</button>
-<nav><button id="n_bmr" onclick="tab('bmr')">Pengiriman</button><button id="n_bms" onclick="tab('bms')">Keuangan</button><button id="n_lap" onclick="tab('lap')">Laporan</button><button id="n_bak" onclick="tab('bak')">Cadangan</button></nav>
+<nav><button id="n_home" onclick="tab('home')">Beranda</button><button id="n_bmr" onclick="tab('bmr')">Transaksi</button><button id="n_bms" onclick="tab('bms')">Keuangan</button><button id="n_lap" onclick="tab('lap')">Laporan</button><button id="n_bak" onclick="tab('bak')">Lainnya</button></nav>
 <dialog id="lg" oncancel="event.preventDefault()"><b>Masuk</b><label>Email</label><input id="l_em" type="email" autocomplete="username"><label>Kata sandi</label><input id="l_pw" type="password" autocomplete="current-password"><div id="l_err" class="bad" style="margin-top:8px"></div><div class="btns" style="margin-top:14px"><button class="p" onclick="masuk()">Masuk</button></div></dialog>
 <dialog id="dlg"><b id="ft"></b>
 <label>Tanggal</label><input type="date" id="f_tgl">
@@ -79,7 +79,7 @@ const YED=[["pendapatan","Pendapatan ekspedisi"],["sewa","Pendapatan sewa truk e
 const $=s=>document.querySelector(s),dlg=$("#dlg"),dg=$("#dg");
 const now=new Date();
 let db=null,RO=false,ready=false,busy=false,P={},CFG={neraca:{},yed:{}};
-let S={tab:"bmr",bln:now.getFullYear()==2026?now.getMonth():0,half:now.getDate()<=15?1:2,edit:null};
+let S={tab:"home",bln:now.getFullYear()==2026?now.getMonth():0,half:now.getDate()<=15?1:2,edit:null};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num=v=>parseFloat(v)||0,rp=n=>"Rp "+Math.round(n||0).toLocaleString("id-ID"),fm=n=>(n||0).toLocaleString("id-ID",{maximumFractionDigits:2});
 const fd=t=>t?t.slice(8)+"/"+t.slice(5,7):"–";
@@ -95,11 +95,16 @@ async function mut(t,fn){
 function tab(t){S.tab=t;render();scrollTo(0,0)}
 function render(){
  $("#st").textContent=RO?"Hanya baca":db?(ready?(navigator.onLine?"Online · tersinkron":"Offline · tersimpan di HP"):"Menghubungkan…"):"Belum tersambung";
- ["bmr","bms","lap","bak"].forEach(k=>$("#n_"+k).className=S.tab==k?"on":"");
- const pr=S.tab=="bmr"||S.tab=="bms";$("#ctl").style.display=pr?"":"none";$("#fab").style.display=pr&&!RO?"":"none";
+ ["home","bmr","bms","lap","bak"].forEach(k=>$("#n_"+k).className=S.tab==k?"on":"");
+ const pr=S.tab=="bmr"||S.tab=="bms"||S.tab=="home";$("#ctl").style.display=pr?"":"none";$("#fab").style.display=(S.tab=="bmr"||S.tab=="bms")&&!RO?"":"none";
  $("#sb").value=S.bln;$("#sh").value=S.half;
- $("#app").innerHTML=({bmr:vBmr,bms:vBms,lap:vLap,bak:vBak})[S.tab]()}
+ $("#app").innerHTML=({home:vHome,bmr:vBmr,bms:vBms,lap:vLap,bak:vBak})[S.tab]()}
 function card(e){const c=calc(e);return `<div class="cd" onclick="openF('${e.id}')"><div class="r"><b>${esc(e.merek||"–")}</b><span class="mu">${fd(e.tgl)}</span></div><div class="mu">${esc(e.pengirim||"–")} → ${esc(e.tujuan||"–")}</div><div class="mu">${esc(e.plat)} ${e.sopir?"("+esc(e.sopir)+")":""}</div>${num(e.d)?"":'<div class="bad" style="font-size:12px;margin-top:4px">⚠ Ongkos per kg belum diisi</div>'}<div class="r g2"><span>${fm(e.karung)} karung = ${fm(c.ton)} ton</span><b>${rp(c.total)}</b></div>${e.bayar?`<div class="r"><span class="mu">Dibayar ${rp(e.bayar)}</span></div>`:""}</div>`}
+function vHome(){const b=S.bln,h=S.half,p=P["BMR-"+b+"-"+h],q=sums((p&&p.rows)||[]),si=sisaInfo(b,h),kn=keuntunganRinci(b,h),per=`${h==1?"1–15":"16–31"} ${BLN[b]} 2026`;
+ const all=Object.values(P).filter(x=>x.t=="BMR");let n=0,ton=0,tag=0,by=0,pjAll=0;all.forEach(x=>{const z=sums(x.rows||[]);n+=(x.rows||[]).length;ton+=z.ton;tag+=z.tag+z.mut;by+=z.bay+num(x.bayar);pjAll+=num(x.pajak)});
+ const sisaAll=tag-by-pjAll,dibayar=by;
+ const t=(v,l)=>`<div style="background:rgba(255,255,255,.07);border-radius:16px;padding:14px"><div style="font-size:24px;font-weight:700">${v}</div><div style="font-size:14px;color:#9fb8ae;margin-top:4px">${l}</div></div>`;
+ return `<div class="sum" style="padding:20px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">PERIODE ${per.toUpperCase()}</div><div style="font-size:34px;font-weight:800;margin:8px 0 2px">${rp(q.tag+q.mut)}</div><div style="font-size:14px;color:#9fb8ae">Total tagihan ke PT periode ini</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">${t(q.n||((p&&p.rows)||[]).length,"Pengiriman")}${t(`${fm(q.ton)} ton`,`${fm(q.krg)} karung`)}${t(rp(kn.total),"Laba kotor")}${t(rp(si.akhir),"Sisa tagihan PT")}</div><button onclick="openF()" style="width:100%;padding:16px;border:0;border-radius:16px;background:var(--am);color:#1b1200;font-size:18px;font-weight:700">+ Catat pengiriman</button></div><div class="sum" style="margin-top:12px;padding:18px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">SEPANJANG 2026</div><div class="ln" style="font-size:16px"><span>Pengiriman</span><span>${n} (${fm(ton)} ton)</span></div><div class="ln" style="font-size:16px"><span>Total tagihan PT</span><span>${rp(tag)}</span></div><div class="ln" style="font-size:16px"><span>Sudah dibayar PT</span><span>${rp(dibayar)}</span></div><div class="ln t" style="font-size:16px"><span>Sisa tagihan</span><span>${rp(sisaAll)}</span></div></div>`}
 function vBmr(){const es=rows("BMR"),s=sums(es),si=sisaInfo(S.bln,S.half);
  return `<div class="sum"><div style="color:#cfd9e4;font-size:13px">Sisa tagihan BMR (kumulatif) · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="big">${rp(si.akhir)}</div><div class="g"><span>Pengiriman <b>${es.length}</b></span><span>Karung <b>${fm(s.krg)}</b></span><span>Berat <b>${fm(s.ton)} ton</b></span><span>Jumlah truk <b>${fm(s.ton/30)}</b></span><span>Tagihan <b>${rp(s.tag)}</b></span><span>Mutasi <b>${rp(s.mut)}</b></span><span>Dibayar <b>${rp(si.bay)}</b></span><span>Sisa sebelumnya <b>${rp(si.pv)}</b></span><span>Pajak 0,5% <b>${rp(si.pj)}</b></span></div>${tagihanPeriodeHtml()}</div>`+pin("BMR","bayar","Pembayaran periode ini (manual, mengurangi sisa, menambah kas rek)")+pin("BMR","pajak","Pajak 0,5% periode ini (mengurangi sisa, masuk Neraca)")+(es.length?es.map(card).join(""):`<div class="empty">Belum ada pengiriman di periode ini.${RO?"":"<br>Ketuk + untuk menambah."}</div>`)}
 function vBms(){return '<div class="grid">'+vBmsIn()+'</div>'}
