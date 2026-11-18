@@ -3,12 +3,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MAS Ekspedisi 2026</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0b2545"><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ctext y='.9em' font-size='9'%3E%F0%9F%9A%9A%3C/text%3E%3C/svg%3E">
 <style>
-:root{--bg:#eef1f4;--cd:#fff;--tx:#14212b;--mu:#5d6b78;--nv:#0b2545;--am:#f5a524;--bd:#d6dde3;--bad:#b42318;--ok:#067647;color-scheme:light}
+:root{--bg:#0c1914;--cd:#14302a;--tx:#f1f5f3;--mu:#9fb8ae;--nv:#123d33;--am:#f0a94a;--bd:#24463d;--bad:#ff8a80;--ok:#6fe0a6;color-scheme:dark}
 :root:not([data-theme="light"]){}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d141b;--cd:#16212b;--tx:#e6edf3;--mu:#92a3b3;--bd:#27343f;--bad:#f97066;--ok:#47cd89;--nv:#08182d;color-scheme:dark}}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1914;--cd:#14302a;--tx:#f1f5f3;--mu:#9fb8ae;--bd:#24463d;--bad:#ff8a80;--ok:#6fe0a6;--nv:#123d33;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0d141b;--cd:#16212b;--tx:#e6edf3;--mu:#92a3b3;--bd:#27343f;--bad:#f97066;--ok:#47cd89;--nv:#08182d;color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0}
-body{background:var(--bg);color:var(--tx);font:15px/1.45 "Bahnschrift","Segoe UI",system-ui,sans-serif;padding:env(safe-area-inset-top,0px) 0 calc(76px + env(safe-area-inset-bottom,0px))}
+body{background:var(--bg);color:var(--tx);font:16px/1.4 "Bahnschrift","Segoe UI",system-ui,sans-serif;padding:env(safe-area-inset-top,0px) 0 calc(76px + env(safe-area-inset-bottom,0px))}
 header{background:var(--nv);color:#fff;padding:12px 14px 14px;position:sticky;top:0;z-index:5}
 .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
 h1{font-size:17px;margin:0;font-weight:600}#st{font-size:12px;color:#cfd9e4}
@@ -16,15 +16,22 @@ h1{font-size:17px;margin:0;font-weight:600}#st{font-size:12px;color:#cfd9e4}
 select,input,textarea{font:inherit;color:inherit}
 header select{flex:1;min-width:0;background:#ffffff18;color:#fff;border:1px solid #ffffff55;border-radius:8px;padding:8px}header option{color:#000}
 main{padding:12px 14px;max-width:640px;margin:0 auto}
-.sum{background:var(--nv);color:#fff;border-radius:12px;padding:14px;margin-bottom:12px}
+.sum{background:linear-gradient(160deg,#18473b,#0f2a23);color:#fff;border-radius:22px;padding:18px;margin-bottom:4px}
 .sum .big{font-size:28px;font-weight:700;color:var(--am);line-height:1.1}
 .sum .g{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:10px;font-size:13px;color:#cfd9e4}.sum b{color:#fff;font-weight:600}
-.cd{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;margin-bottom:8px}
+.cd{background:var(--cd);border:0;border-radius:18px;padding:14px 16px;margin-bottom:0;font-size:16px}
 .r{display:flex;justify-content:space-between;gap:8px}.mu{color:var(--mu);font-size:13px}.g2{margin:6px 0;padding-top:6px;border-top:1px solid var(--bd)}
 .bad{color:var(--bad)}.ok{color:var(--ok)}.empty{text-align:center;color:var(--mu);padding:36px 10px}
 .pl{background:var(--cd);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:10px;font:inherit;width:100%;margin-bottom:8px}
 h2{font-size:15px;margin:16px 0 8px}
-.ln{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.ln{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid>.sum,.grid>.cd,.grid>h2,.grid>.ln.t,.grid>.wide{grid-column:1/-1}
+.grid .ln{flex-direction:column;align-items:flex-start;gap:4px;padding:12px;background:var(--cd);border:0;border-radius:16px;font-size:14px;color:var(--mu)}
+.grid .ln>span:last-child{font-size:20px;font-weight:700;color:var(--tx)}
+.grid .ln input{width:100%;text-align:left;font-size:18px}
+.grid .ln.t{background:var(--nv);color:#fff}
+.grid .ln.t>span:last-child{color:var(--am)}
 .ln input{width:150px;text-align:right;padding:7px;border:1px solid var(--bd);border-radius:8px;background:var(--cd)}
 .ln.t{font-weight:700;border:0}
 nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--cd);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -95,7 +102,8 @@ function render(){
 function card(e){const c=calc(e);return `<div class="cd" onclick="openF('${e.id}')"><div class="r"><b>${esc(e.merek||"–")}</b><span class="mu">${fd(e.tgl)}</span></div><div class="mu">${esc(e.pengirim||"–")} → ${esc(e.tujuan||"–")}</div><div class="mu">${esc(e.plat)} ${e.sopir?"("+esc(e.sopir)+")":""}</div>${num(e.d)?"":'<div class="bad" style="font-size:12px;margin-top:4px">⚠ Ongkos per kg belum diisi</div>'}<div class="r g2"><span>${fm(e.karung)} karung = ${fm(c.ton)} ton</span><b>${rp(c.total)}</b></div>${e.bayar?`<div class="r"><span class="mu">Dibayar ${rp(e.bayar)}</span></div>`:""}</div>`}
 function vBmr(){const es=rows("BMR"),s=sums(es),si=sisaInfo(S.bln,S.half);
  return `<div class="sum"><div style="color:#cfd9e4;font-size:13px">Sisa tagihan BMR (kumulatif) · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="big">${rp(si.akhir)}</div><div class="g"><span>Pengiriman <b>${es.length}</b></span><span>Karung <b>${fm(s.krg)}</b></span><span>Berat <b>${fm(s.ton)} ton</b></span><span>Jumlah truk <b>${fm(s.ton/30)}</b></span><span>Tagihan <b>${rp(s.tag)}</b></span><span>Mutasi <b>${rp(s.mut)}</b></span><span>Dibayar <b>${rp(si.bay)}</b></span><span>Sisa sebelumnya <b>${rp(si.pv)}</b></span><span>Pajak 0,5% <b>${rp(si.pj)}</b></span></div>${tagihanPeriodeHtml()}</div>`+pin("BMR","bayar","Pembayaran periode ini (manual, mengurangi sisa, menambah kas rek)")+pin("BMR","pajak","Pajak 0,5% periode ini (mengurangi sisa, masuk Neraca)")+(es.length?es.map(card).join(""):`<div class="empty">Belum ada pengiriman di periode ini.${RO?"":"<br>Ketuk + untuk menambah."}</div>`)}
-function vBms(){const es=rows("BMS").filter(e=>JENIS.includes(e.jenis));const by=JENIS.map(j=>[j,es.filter(e=>e.jenis==j).reduce((a,e)=>a+e.jumlah,0)]).filter(x=>x[1]);
+function vBms(){return '<div class="grid">'+vBmsIn()+'</div>'}
+function vBmsIn(){const es=rows("BMS").filter(e=>JENIS.includes(e.jenis));const by=JENIS.map(j=>[j,es.filter(e=>e.jenis==j).reduce((a,e)=>a+e.jumlah,0)]).filter(x=>x[1]);
  return `<div class="sum"><div style="color:#cfd9e4;font-size:13px">Keuangan BMS · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="g" style="grid-template-columns:1fr">${by.length?by.map(([j,v])=>`<span class="r"><span>${esc(jl(j))}</span><b>${rp(v)}</b></span>`).join(""):"<span>Belum ada catatan.</span>"}</div>${kasHtml()}</div>`+BMSP()+aaHtml()+es.map(e=>`<div class="cd" onclick="openG('${e.id}')"><div class="r"><b>${esc(jl(e.jenis))}</b><b>${rp(e.jumlah)}</b></div><div class="mu">${fd(e.tgl)} ${esc(e.ket)}</div></div>`).join("")}
 const sumD=(t,f)=>Object.values(P).filter(x=>x.t==t).reduce((a,x)=>a+f(x),0);
 const jn=(x,j)=>(x.rows||[]).filter(r=>r.jenis==j).reduce((a,r)=>a+r.jumlah,0);
