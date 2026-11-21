@@ -58,7 +58,7 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 <div class="two"><div><label>Merek – jenis pakan</label><input id="f_merek" list="dm"></div><div><label>Tujuan</label><input id="f_tujuan" list="dt"></div></div>
 <label>Jumlah karung</label><input type="text" inputmode="text" id="f_karung" oninput="prev()">
 <label>Biaya mutasi (Rp)</label><input type="text" inputmode="text" id="f_mutasi" oninput="prev()">
-<div class="two"><div><label>Mobil Yed (Rp)</label><input type="text" inputmode="text" id="f_f"></div><div><label>Ongkos mobil (Rp)</label><input type="text" inputmode="text" id="f_k"></div></div>
+<label>Mobil Yed (Rp)</label><input type="text" inputmode="text" id="f_f">
 <label>Keterangan</label><input id="f_ket"><div class="pv" id="pv"></div>
 <div class="btns"><button id="del" onclick="hapus()">Hapus</button><button onclick="dlg.close()">Batal</button><button class="p" onclick="simpan()">Simpan</button></div>
 <datalist id="dm"></datalist><datalist id="dt"></datalist><datalist id="dp"></datalist></dialog>
@@ -75,7 +75,7 @@ const PLAT=[["BK 8323 FB","BG MUN"],["BK 8075 NB","Beuna Jaya"],["BK 8323 CG","Z
 const TUJ="MEDAN|GUDANG|Periode Lalu|Diambil Alwi|Ambil Kantor|Abdul Somad|Azhar|Bahri|Balyani|Bukhari|Fajar|Feri|Ghani|Khairunisa|M Nasir|Mawardinur|Azis Amin|PT PMI 1|PT PMI 2|Nurdin Hasyem|Rahmayani|Ramli|Rasyid|Riza H|Saiful|Sulaiman|Syahrol|Sayed Nadariadi|Syarkawi|Fauzan|Yusri|Zulkifi|Zulfikar A|Zulfikar B|Tgk Aji Nasir|M.Fadir|Abdullah|Afwan|Andi|Azanul|Fahrurrazi|Faisal|Halim|Intan|Muhajir|Mursyid|Nazaruddin|Fikar|Firdaus|Ria|Darwanti|Ridwan|Ammar|Auliati|Idris|Jainuddin|Jamal|Liza|Feriadi|Miswari|Saifulli|Sibral|M. Arif|M.Yusuf|Cut LiLis|zulfan|Arifuddin|Muktar|Aliya|Anidar|M.Rafi|M.Ikhlas".split("|");
 const JENIS=["Ambilan Abang Adi","Ongkos mutasi","Biaya operasional ekspedisi","Biaya operasional mutasi"];
 const jl=j=>j=="Ongkos mutasi"?"Ongkos mobil":j;
-const F=["tgl","merek","pengirim","tujuan","plat","sopir","karung","harga","mutasi","d","f","k","ket"];
+const F=["tgl","merek","pengirim","tujuan","plat","sopir","karung","harga","mutasi","d","f","ket"];
 const NER=[["pembayaran","Total pembayaran ekspedisi"],["pajak","Total pajak 0,5%"],["ongkos","Total ongkos ekspedisi"],["fee","Fee perusahaan Mitra"],["operasional","Total biaya operasional usaha"]];
 const YED=[["pendapatan","Pendapatan ekspedisi"],["sewa","Pendapatan sewa truk ekspedisi"],["mutasi","Pendapatan sewa truk mutasi"],["p10","Pendapatan ekspedisi 10%"]];
 const $=s=>document.querySelector(s),dlg=$("#dlg"),dg=$("#dg");
@@ -165,7 +165,7 @@ async function setP(t,k,v){if(!db||RO||busy)return;busy=true;try{const ref=db.do
 function defDate(){return `${S.year}-${String(S.bln+1).padStart(2,"0")}-${S.half==1?"01":"16"}`}
 function openF(id){if(RO)return;S.edit=id||null;const sh=JSON.parse(localStorage.getItem("mbs_shared")||"{}");const base=id?(rows("BMR").find(x=>x.id==id)||{}):{tgl:sh.tgl||defDate(),pengirim:sh.pengirim||"",plat:sh.plat||"",sopir:sh.sopir||"",harga:sh.harga??"",d:sh.d??""};F.forEach(k=>$("#f_"+k).value=base[k]??"");$("#del").style.display=id?"":"none";$("#ft").textContent=id?"Ubah pengiriman":"Pengiriman baru";prev();dlg.showModal()}
 function autoS(){const p=PLAT.find(x=>x[0].toLowerCase()==$("#f_plat").value.trim().toLowerCase());if(p&&!$("#f_sopir").value)$("#f_sopir").value=p[1]}
-function vals(){const e={};F.forEach(k=>e[k]=$("#f_"+k).value.trim());["karung","harga","mutasi","d","f","k"].forEach(k=>e[k]=num(e[k]));return e}
+function vals(){const e={};F.forEach(k=>e[k]=$("#f_"+k).value.trim());["karung","harga","mutasi","d","f"].forEach(k=>e[k]=num(e[k]));return e}
 function prev(){const e=vals(),c=calc(e);$("#pv").innerHTML=`${fm(c.ton)} ton (${fm(c.kg)} kg)<br>Tagihan ${rp(c.tag)} · Total ${rp(c.total)}`}
 async function simpan(){const e=vals();if(!e.tgl||e.karung<=0){alert("Isi tanggal dan jumlah karung.");return}
  const id=S.edit;if(await mut("BMR",r=>id?r.map(x=>x.id==id?{...x,...e}:x):[...r,{id:"n"+Date.now().toString(36),bayar:0,...e}])){if(!id)localStorage.setItem("mbs_shared",JSON.stringify({tgl:$("#f_tgl").value,pengirim:$("#f_pengirim").value,plat:$("#f_plat").value,sopir:$("#f_sopir").value,harga:$("#f_harga").value,d:$("#f_d").value}));dlg.close();toast("Tersimpan")}}
