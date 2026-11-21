@@ -51,13 +51,15 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 <nav><button id="n_home" onclick="tab('home')">Beranda</button><button id="n_bmr" onclick="tab('bmr')">Transaksi</button><button id="n_bms" onclick="tab('bms')">Keuangan</button><button id="n_lap" onclick="tab('lap')">Laporan</button><button id="n_bak" onclick="tab('bak')">Lainnya</button></nav>
 <dialog id="lg" oncancel="event.preventDefault()"><b>Masuk</b><label>Email</label><input id="l_em" type="email" autocomplete="username"><label>Kata sandi</label><input id="l_pw" type="password" autocomplete="current-password"><div id="l_err" class="bad" style="margin-top:8px"></div><div class="btns" style="margin-top:14px"><button class="p" onclick="masuk()">Masuk</button></div></dialog>
 <dialog id="dlg"><b id="ft"></b>
-<label>Tanggal</label><input type="date" id="f_tgl">
-<label>Merek – jenis pakan</label><input id="f_merek" list="dm">
-<div class="two"><div><label>Pengirim</label><input id="f_pengirim" list="dt"></div><div><label>Tujuan</label><input id="f_tujuan" list="dt"></div></div>
+<div class="two"><div><label>Tanggal</label><input type="date" id="f_tgl"></div><div><label>Pengirim</label><input id="f_pengirim" list="dt"></div></div>
 <div class="two"><div><label>Plat mobil</label><input id="f_plat" list="dp" oninput="autoS()"></div><div><label>Nama sopir</label><input id="f_sopir"></div></div>
-<div class="two"><div><label>Jumlah karung</label><input type="text" inputmode="text" id="f_karung" oninput="prev()"></div><div><label>Harga per kg (Rp)</label><input type="text" inputmode="text" id="f_harga" oninput="prev()"></div></div>
+<div class="two"><div><label>Harga per kg (Rp)</label><input type="text" inputmode="text" id="f_harga" oninput="prev()"></div><div><label>Ongkos per kg (Rp)</label><input type="text" inputmode="text" id="f_d"></div></div>
+<label style="margin-top:10px;font-weight:700">Isi setiap pengiriman</label>
+<div class="two"><div><label>Merek – jenis pakan</label><input id="f_merek" list="dm"></div><div><label>Tujuan</label><input id="f_tujuan" list="dt"></div></div>
+<label>Jumlah karung</label><input type="text" inputmode="text" id="f_karung" oninput="prev()">
 <label>Biaya mutasi (Rp)</label><input type="text" inputmode="text" id="f_mutasi" oninput="prev()">
-<label>Untuk laporan BMS (boleh dikosongkan)</label><div class="two"><div><label>Ongkos per kg (Rp)</label><input type="text" inputmode="text" id="f_d"></div><div><label>Mobil Yed (Rp)</label><input type="text" inputmode="text" id="f_f"></div></div><label>Ongkos mobil (Rp)</label><input type="text" inputmode="text" id="f_k"><label>Keterangan</label><input id="f_ket"><div class="pv" id="pv"></div>
+<div class="two"><div><label>Mobil Yed (Rp)</label><input type="text" inputmode="text" id="f_f"></div><div><label>Ongkos mobil (Rp)</label><input type="text" inputmode="text" id="f_k"></div></div>
+<label>Keterangan</label><input id="f_ket"><div class="pv" id="pv"></div>
 <div class="btns"><button id="del" onclick="hapus()">Hapus</button><button onclick="dlg.close()">Batal</button><button class="p" onclick="simpan()">Simpan</button></div>
 <datalist id="dm"></datalist><datalist id="dt"></datalist><datalist id="dp"></datalist></dialog>
 <dialog id="dg"><b id="gt"></b>
@@ -161,12 +163,12 @@ function vBak(){return `<button class="pl" onclick="firebase.auth().signOut().th
 async function setA(k,v){if(!db||RO)return;CFG.adj=CFG.adj||{};CFG.adj[k]=num(v);try{await db.doc(CF()).set({adj:CFG.adj});render()}catch(e){toast("Gagal menyimpan.")}}
 async function setP(t,k,v){if(!db||RO||busy)return;busy=true;try{const ref=db.doc(PC()+"/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur[k]=(v===""?null:num(v));await ref.set(cur);toast("Tersimpan")}catch(e){toast("Gagal menyimpan ("+(e.code||"error")+").")}finally{busy=false}}
 function defDate(){return `${S.year}-${String(S.bln+1).padStart(2,"0")}-${S.half==1?"01":"16"}`}
-function openF(id){if(RO)return;S.edit=id||null;const e=id?rows("BMR").find(x=>x.id==id)||{}:{tgl:defDate()};F.forEach(k=>$("#f_"+k).value=e[k]??"");$("#del").style.display=id?"":"none";$("#ft").textContent=id?"Ubah pengiriman":"Pengiriman baru";prev();dlg.showModal()}
+function openF(id){if(RO)return;S.edit=id||null;const sh=JSON.parse(localStorage.getItem("mbs_shared")||"{}");const base=id?(rows("BMR").find(x=>x.id==id)||{}):{tgl:sh.tgl||defDate(),pengirim:sh.pengirim||"",plat:sh.plat||"",sopir:sh.sopir||"",harga:sh.harga??"",d:sh.d??""};F.forEach(k=>$("#f_"+k).value=base[k]??"");$("#del").style.display=id?"":"none";$("#ft").textContent=id?"Ubah pengiriman":"Pengiriman baru";prev();dlg.showModal()}
 function autoS(){const p=PLAT.find(x=>x[0].toLowerCase()==$("#f_plat").value.trim().toLowerCase());if(p&&!$("#f_sopir").value)$("#f_sopir").value=p[1]}
 function vals(){const e={};F.forEach(k=>e[k]=$("#f_"+k).value.trim());["karung","harga","mutasi","d","f","k"].forEach(k=>e[k]=num(e[k]));return e}
 function prev(){const e=vals(),c=calc(e);$("#pv").innerHTML=`${fm(c.ton)} ton (${fm(c.kg)} kg)<br>Tagihan ${rp(c.tag)} · Total ${rp(c.total)}`}
 async function simpan(){const e=vals();if(!e.tgl||e.karung<=0){alert("Isi tanggal dan jumlah karung.");return}
- const id=S.edit;if(await mut("BMR",r=>id?r.map(x=>x.id==id?{...x,...e}:x):[...r,{id:"n"+Date.now().toString(36),bayar:0,...e}])){dlg.close();toast("Tersimpan")}}
+ const id=S.edit;if(await mut("BMR",r=>id?r.map(x=>x.id==id?{...x,...e}:x):[...r,{id:"n"+Date.now().toString(36),bayar:0,...e}])){if(!id)localStorage.setItem("mbs_shared",JSON.stringify({tgl:$("#f_tgl").value,pengirim:$("#f_pengirim").value,plat:$("#f_plat").value,sopir:$("#f_sopir").value,harga:$("#f_harga").value,d:$("#f_d").value}));dlg.close();toast("Tersimpan")}}
 async function hapus(){const id=S.edit;if(confirm("Hapus pengiriman ini?")&&await mut("BMR",r=>r.filter(x=>x.id!=id)))dlg.close()}
 function openG(id){if(RO)return;S.edit=id||null;const e=id?rows("BMS").find(x=>x.id==id)||{}:{tgl:""};$("#g_jenis").innerHTML=JENIS.map(j=>`<option value="${j}">${jl(j)}</option>`).join("");$("#g_tgl").value=e.tgl||"";$("#g_jenis").value=e.jenis||JENIS[0];$("#g_ket").value=e.ket||"";$("#g_jumlah").value=e.jumlah??"";$("#gdel").style.display=id?"":"none";$("#gt").textContent=id?"Ubah catatan":"Catatan keuangan baru";dg.showModal()}
 async function simpanG(){const e={tgl:$("#g_tgl").value,jenis:$("#g_jenis").value,ket:$("#g_ket").value.trim(),jumlah:num($("#g_jumlah").value)};if(!e.jumlah){alert("Isi jumlah.");return}
