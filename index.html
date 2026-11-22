@@ -43,7 +43,7 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pv{background:var(--bg);border-radius:8px;padding:10px;margin:12px 0;font-size:14px}
 .btns{display:flex;gap:8px}.btns button{flex:1;padding:12px;border-radius:8px;border:1px solid var(--bd);font:inherit;background:var(--bg);color:var(--tx)}.btns .p{background:var(--nv);color:#fff;border:0;font-weight:600;flex:2}
 #toast{position:fixed;left:14px;right:14px;bottom:calc(130px + env(safe-area-inset-bottom,0px));background:#14212b;color:#fff;padding:10px 12px;border-radius:8px;display:none;z-index:9}
-</style></head><body>
+</style><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head><body>
 <header><div class="top"><div><h1>MAS Ekspedisi</h1><div style="font-size:13px;color:#9fb8ae">PT. Mitra Abadi Safa</div></div><span id="st"></span></div>
 <div class="ctl" id="ctl"><select id="sy" style="max-width:110px"><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><select id="sb"></select><select id="sh"><option value="1">Tgl 1–15</option><option value="2">Tgl 16–akhir</option></select></div></header>
 <main id="app"></main><div id="toast"></div>
@@ -150,11 +150,37 @@ function lapVal(){const A=CFG.adj||{};
  const N={pembayaran:bmr+num(A.pembayaran),pajak:sumD("BMR",x=>pajakDoc(x))+num(A.pajak),ongkos:ongkosAll()+num(A.ongkos),fee:sumD("BMR",x=>sums(x.rows||[]).ton/30*FEEPT)+num(A.fee),operasional:sumD("BMS",x=>jn(x,"Biaya operasional ekspedisi"))+num(A.operasional)};
  const Y={pendapatan:.5*sumD("BMS",x=>x.b>=5?keuntunganPeriode(x.b,x.h):0)+num(A.yedPend),sewa:sumD("BMS",x=>sewaPeriode(x.b,x.h)),mutasi:0,p10:sumD("BMS",x=>0.2*keuntunganPeriode(x.b,x.h)+num(x.mutAdj)),biaya:sumD("BMS",x=>jn(x,"Biaya operasional mutasi"))+num(A.yedBiaya)};
  return{N,Y}}
+async function laporanPDF(kirim){
+ if(!window.jspdf){alert("Library PDF belum dimuat. Periksa koneksi internet lalu coba lagi.");return}
+ const {N,Y}=lapVal(),kn=N.pembayaran-N.pajak-N.ongkos-N.fee-N.operasional,tp=Y.pendapatan+Y.sewa+Y.mutasi+Y.p10,ky=tp-Y.biaya;
+ const doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+ const R=v=>"Rp "+Math.round(num(v)).toLocaleString("id-ID");
+ let y=18;
+ const line=(l,v,b)=>{doc.setFont("helvetica",b?"bold":"normal");doc.setFontSize(10);doc.text(l,15,y);doc.text(v,195,y,{align:"right"});y+=6.5};
+ const head=t=>{y+=3;doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(t,15,y);y+=2;doc.line(15,y,195,y);y+=6};
+ doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("LAPORAN KEUANGAN",105,y,{align:"center"});y+=7;
+ doc.setFontSize(11);doc.text("PT. Mitra Abadi Safa - Tahun 2026",105,y,{align:"center"});y+=6;
+ doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("Dibuat: "+new Date().toLocaleDateString("id-ID"),105,y,{align:"center"});y+=8;
+ head("NERACA");
+ NER.forEach(([k,l])=>line(l,R(N[k])));
+ line("Keuntungan bersih usaha ekspedisi",R(kn),true);
+ line("Keuntungan bersih (%)",N.pembayaran?(kn/N.pembayaran*100).toFixed(2).replace(".",",")+"%":"-");
+ y+=8;
+ head("KAS YED");
+ YED.forEach(([k,l])=>line(l,R(Y[k])));
+ line("Total pendapatan",R(tp),true);
+ line("Biaya perawatan truk dan operasional",R(Y.biaya));
+ line("Keuntungan bersih usaha ekspedisi",R(ky),true);
+ const blob=doc.output("blob"),nama="Laporan-Keuangan-MAS-2026.pdf",file=new File([blob],nama,{type:"application/pdf"});
+ if(!kirim){window.open(URL.createObjectURL(blob),"_blank");return}
+ if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:"Laporan Keuangan MAS 2026"})}catch(e){}return}
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nama;document.body.appendChild(a);a.click();a.remove();alert("HP ini tidak bisa langsung membagikan file. PDF sudah diunduh; buka WhatsApp lalu lampirkan file itu.")
+}
 function vLap(){const {N,Y}=lapVal(),kn=N.pembayaran-N.pajak-N.ongkos-N.fee-N.operasional,tp=Y.pendapatan+Y.sewa+Y.mutasi+Y.p10,ky=tp-Y.biaya;
  const ln=(l,v)=>`<div class="ln"><span>${l}</span><span>${rp(v)}</span></div>`;
  const adj=(k,l)=>`<div class="ln"><span>${l}</span><input type="text" inputmode="text" value="${num((CFG.adj||{})[k])}" ${RO?"disabled":""} onchange="setA('${k}',this.value)"></div>`;
- return `<p class="mu">Dihitung otomatis dari BMR dan BMS. Isi pajak di tab Pengiriman, serta bagi hasil dan angka kas di tab Keuangan, untuk setiap periode.</p><h2>Neraca</h2>`+NER.map(([k,l])=>ln(l,N[k])).join("")+`<div class="ln t"><span>Keuntungan bersih usaha ekspedisi</span><span class="${kn>=0?"ok":"bad"}">${rp(kn)}</span></div><div class="ln t"><span>Keuntungan bersih (%)</span><span>${N.pembayaran?fm(kn/N.pembayaran*100):"–"}%</span></div>
- <h2>Kas YED</h2>`+YED.map(([k,l])=>ln(l,Y[k])).join("")+`<div class="ln t"><span>Total pendapatan</span><span>${rp(tp)}</span></div>`+ln("Biaya perawatan truk dan operasional",Y.biaya)+`<div class="ln t"><span>Keuntungan bersih usaha ekspedisi</span><span class="${ky>=0?"ok":"bad"}">${rp(ky)}</span></div>
+ return `<div style="display:flex;gap:8px;margin-bottom:10px"><button class="pl" onclick="laporanPDF(false)">Lihat PDF</button><button class="pl" onclick="laporanPDF(true)">Kirim via WA</button></div><p class="mu">Dihitung otomatis dari BMR dan BMS. Isi pajak di tab Pengiriman, serta bagi hasil dan angka kas di tab Keuangan, untuk setiap periode.</p><h2>Neraca</h2>`+NER.map(([k,l])=>ln(l,N[k])).join("")+`<div class="ln t"><span>Keuntungan bersih usaha ekspedisi</span><span class="${kn>=0?"ok":"bad"}">${rp(kn)}</span></div><div class="ln t"><span>Keuntungan bersih (%)</span><span>${N.pembayaran?fm(kn/N.pembayaran*100):"–"}%</span></div>
+ <div style="height:16px"></div><h2>Kas YED</h2>`+YED.map(([k,l])=>ln(l,Y[k])).join("")+`<div class="ln t"><span>Total pendapatan</span><span>${rp(tp)}</span></div>`+ln("Biaya perawatan truk dan operasional",Y.biaya)+`<div class="ln t"><span>Keuntungan bersih usaha ekspedisi</span><span class="${ky>=0?"ok":"bad"}">${rp(ky)}</span></div>
  <h2>Saldo awal dan penyesuaian</h2><p class="mu">Angka tetap yang ikut dijumlahkan di rumus Excel. Ubah hanya jika Excel Anda berubah.</p>`+ADJ.map(([k,l])=>adj(k,l)).join("")}
 function vBak(){return `<button class="pl" onclick="firebase.auth().signOut().then(()=>location.reload())">Keluar akun</button><a class="pl" href="ekspor2.html" style="display:block;text-align:center;text-decoration:none;font-weight:600">Unduh Excel (.xlsx)</a><h2>Cadangan data</h2><p class="mu">Data tersimpan di database aplikasi ini dan tampil sama di semua HP yang membukanya. Unduh cadangan berkala sebagai salinan di luar aplikasi.</p>
  <button class="pl" onclick="bakJson()">Unduh cadangan lengkap (JSON)</button><button class="pl" onclick="csv(true)">Unduh semua BMR (CSV)</button><button class="pl" onclick="csv(false)">Unduh BMR periode ini (CSV)</button>
