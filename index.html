@@ -61,7 +61,6 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 <label>Keterangan</label><input id="f_ket"><div class="pv" id="pv"></div>
 <div class="btns"><button id="del" onclick="hapus()">Hapus</button><button onclick="dlg.close()">Batal</button><button class="p" onclick="simpan()">Simpan</button></div>
 <datalist id="dm"></datalist><datalist id="dt"></datalist><datalist id="dp"></datalist></dialog>
-<dialog id="tb" style="width:96vw;max-width:1100px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b id="tbt" style="font-size:13px"></b><button onclick="document.getElementById('tb').close()">Tutup</button></div><div id="tbc" style="overflow:auto;max-height:70vh;margin-top:8px"></div></dialog>
 <dialog id="dg"><b id="gt"></b>
 <label>Tanggal (boleh kosong)</label><input type="date" id="g_tgl">
 <label>Jenis</label><select id="g_jenis"></select>
@@ -108,7 +107,7 @@ function vHome(){const b=S.bln,h=S.half,p=P["BMR-"+b+"-"+h],q=sums((p&&p.rows)||
  const t=(v,l)=>`<div style="background:rgba(255,255,255,.07);border-radius:16px;padding:14px"><div style="font-size:24px;font-weight:700">${v}</div><div style="font-size:14px;color:#9fb8ae;margin-top:4px">${l}</div></div>`;
  return `<div class="sum" style="padding:20px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">PERIODE ${per.toUpperCase()}</div><div style="font-size:34px;font-weight:800;margin:8px 0 2px">${rp(q.tag+q.mut)}</div><div style="font-size:14px;color:#9fb8ae">Total tagihan ke PT periode ini</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">${t(fm(q.ton/30),"Jumlah truk")}${t(`${fm(q.ton)} ton`,`${fm(q.krg)} karung`)}${t(rp(kasInfo(b,h).ak),"Saldo Rekening")}${t(rp(si.akhir),"Sisa tagihan PT")}</div><button onclick="openF()" style="width:100%;padding:16px;border:0;border-radius:16px;background:var(--am);color:#1b1200;font-size:18px;font-weight:700">+ Catat pengiriman</button><button onclick="openG()" style="width:100%;padding:16px;border:0;border-radius:16px;margin-top:10px;background:#2c5b4e;color:#fff;font-size:18px;font-weight:700">+ Catat keuangan</button></div><div class="sum" style="margin-top:12px;padding:18px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">SEPANJANG ${S.year}</div><div class="ln" style="font-size:16px"><span>Pengiriman</span><span>${n} (${fm(ton)} ton)</span></div><div class="ln" style="font-size:16px"><span>Total tagihan PT</span><span>${rp(tag)}</span></div><div class="ln" style="font-size:16px"><span>Sudah dibayar PT</span><span>${rp(dibayar)}</span></div><div class="ln t" style="font-size:16px"><span>Sisa tagihan</span><span>${rp(sisaAll)}</span></div></div>`}
 function vBmr(){const es=rows("BMR").slice().sort((a,b)=>(b.tgl||"").localeCompare(a.tgl||"")),s=sums(es),si=sisaInfo(S.bln,S.half);
- return `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"><button class="pl" onclick="tabelTransaksi()">Lihat tabel</button><button class="pl" onclick="laporanTransaksi(false)">Lihat PDF</button><button class="pl" onclick="laporanTransaksi(2)">Unduh PDF</button><button class="pl" onclick="laporanTransaksi(true)">Kirim via WA</button></div><div class="sum"><div style="color:#cfd9e4;font-size:13px">Sisa tagihan BMR (kumulatif) · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="big">${rp(si.akhir)}</div><div class="g"><span>Pengiriman <b>${es.length}</b></span><span>Karung <b>${fm(s.krg)}</b></span><span>Berat <b>${fm(s.ton)} ton</b></span><span>Jumlah truk <b>${fm(s.ton/30)}</b></span><span>Tagihan <b>${rp(s.tag)}</b></span><span>Mutasi <b>${rp(s.mut)}</b></span><span>Dibayar <b>${rp(si.bay)}</b></span><span>Sisa sebelumnya <b>${rp(si.pv)}</b></span><span>Pajak 0,5% <b>${rp(si.pj)}</b></span></div>${tagihanPeriodeHtml()}</div>`+pin("BMR","bayar","Pembayaran periode ini (manual, mengurangi sisa, menambah kas rek)")+`<div class="ln"><span>Pajak 0,5% periode ini (otomatis dari tagihan, mengurangi sisa, masuk Neraca)</span><span>${rp(pajakOf(S.bln,S.half))}</span></div>`+(es.length?es.map(card).join(""):`<div class="empty">Belum ada pengiriman di periode ini.${RO?"":"<br>Ketuk + untuk menambah."}</div>`)}
+ return `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"><button class="pl" onclick="laporanTransaksi(false)">Lihat PDF</button><button class="pl" onclick="laporanTransaksi(2)">Unduh PDF</button><button class="pl" onclick="laporanTransaksi(true)">Kirim via WA</button></div><div class="sum"><div style="color:#cfd9e4;font-size:13px">Sisa tagihan BMR (kumulatif) · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="big">${rp(si.akhir)}</div><div class="g"><span>Pengiriman <b>${es.length}</b></span><span>Karung <b>${fm(s.krg)}</b></span><span>Berat <b>${fm(s.ton)} ton</b></span><span>Jumlah truk <b>${fm(s.ton/30)}</b></span><span>Tagihan <b>${rp(s.tag)}</b></span><span>Mutasi <b>${rp(s.mut)}</b></span><span>Dibayar <b>${rp(si.bay)}</b></span><span>Sisa sebelumnya <b>${rp(si.pv)}</b></span><span>Pajak 0,5% <b>${rp(si.pj)}</b></span></div>${tagihanPeriodeHtml()}</div>`+pin("BMR","bayar","Pembayaran periode ini (manual, mengurangi sisa, menambah kas rek)")+`<div class="ln"><span>Pajak 0,5% periode ini (otomatis dari tagihan, mengurangi sisa, masuk Neraca)</span><span>${rp(pajakOf(S.bln,S.half))}</span></div>`+(es.length?es.map(card).join(""):`<div class="empty">Belum ada pengiriman di periode ini.${RO?"":"<br>Ketuk + untuk menambah."}</div>`)}
 function vBms(){return '<div class="grid">'+vBmsIn()+'</div>'}
 function tambahKasRow(){const s=P[key("BMS")]||{},L=(s.tambahList||[]).slice().sort((a,b)=>(b.tgl||"").localeCompare(a.tgl||"")),tot=L.reduce((a,x)=>a+num(x.jumlah),0)+num(s.tambahKas);const rows=L.map(x=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)"><span>${fd(x.tgl)} ${esc(x.ket||"")}</span><span style="display:flex;gap:8px;align-items:center"><b>${rp(x.jumlah)}</b><button ${RO?"disabled":""} onclick="removeTambahKas('${x.id}')" style="border:0;background:none;color:var(--bad);font-size:18px">✕</button></span></div>`).join("");return `<div class="ln" style="display:block"><div style="margin-bottom:8px">Penambahan saldo kas rek (manual)</div>${rows||'<div class="mu">Belum ada penambahan.</div>'}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"><input id="tk_tgl" type="date" style="flex:1;min-width:130px"><input id="tk_ket" placeholder="keterangan" style="flex:2;min-width:140px"><input id="tk_jml" type="text" inputmode="text" placeholder="bisa minus" placeholder="jumlah" style="flex:1;min-width:120px"><button ${RO?"disabled":""} onclick="addTambahKas()" style="padding:0 16px;border:0;border-radius:12px;background:var(--am);color:#1b1200;font-weight:700">Tambah</button></div><div style="margin-top:8px;font-weight:700">Total penambahan: ${rp(tot)}</div></div>`}
 async function mutField(t,k,fn){if(!db||RO||busy)return false;busy=true;try{const ref=db.doc(PC()+"/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur[k]=fn(cur[k]||[]);await ref.set(cur);return true}catch(e){toast("Gagal menyimpan ("+(e.code||"error")+").");return false}finally{busy=false}}
@@ -156,22 +155,18 @@ function trxRows(){return rows("BMR").slice().sort((a,b)=>(a.tgl||"").localeComp
 function trxJudul(){return "LAPORAN TRANSAKSI EXPEDISI PT.MITRA ABADI SAFA - CV. BERKAH MAJU REZEKI"}
 function trxPeriode(){return "PERIODE "+(S.half==1?"1–15":"16–AKHIR")+" "+BLN[S.bln].toUpperCase()+" "+S.year}
 function trxKolom(){return [
- ["No",7,"c",(e,i)=>String(i+1)],
- ["Tanggal",18,"l",e=>fd(e.tgl)],
- ["Merek",26,"l",e=>e.merek||""],
- ["Pengirim",19,"l",e=>e.pengirim||""],
- ["Tujuan",26,"l",e=>e.tujuan||""],
- ["Plat",22,"l",e=>e.plat||""],
- ["Sopir",19,"l",e=>e.sopir||""],
- ["Karung",13,"r",e=>fm(e.karung)],
- ["Ton",11,"r",e=>fm(calc(e).ton)],
- ["Harga/kg",14,"r",e=>rp(e.harga)],
- ["Ongkos/kg",14,"r",e=>rp(e.d)],
- ["Tagihan",22,"r",e=>rp(calc(e).tag)],
- ["Mutasi",17,"r",e=>rp(e.mutasi)],
- ["Mobil Yed",17,"r",e=>rp(e.f)],
- ["Dibayar",17,"r",e=>rp(e.bayar)],
- ["Keterangan",17,"l",e=>e.ket||""]
+ ["No",8,"c",(e,i)=>String(i+1)],
+ ["Tanggal",20,"l",e=>fd(e.tgl)],
+ ["Merek",36,"l",e=>e.merek||""],
+ ["Pengirim",26,"l",e=>e.pengirim||""],
+ ["Tujuan",36,"l",e=>e.tujuan||""],
+ ["Plat",24,"l",e=>e.plat||""],
+ ["Sopir",24,"l",e=>e.sopir||""],
+ ["Karung",15,"r",e=>fm(e.karung)],
+ ["Ton",13,"r",e=>fm(calc(e).ton)],
+ ["Harga/kg",17,"r",e=>rp(e.harga)],
+ ["Tagihan",28,"r",e=>rp(calc(e).tag)],
+ ["Mutasi",22,"r",e=>rp(e.mutasi)]
 ]}
 async function bagikanPDF(doc,nama,judul,mode){
  const blob=doc.output("blob"),file=new File([blob],nama,{type:"application/pdf"});
@@ -223,24 +218,14 @@ async function laporanTransaksi(mode){
   rowY(y,kol.map((k,ci)=>k[3](e,i)));y+=5.5});
  if(y>185){doc.addPage();y=head()}
  doc.setDrawColor(20,70,50);doc.line(M,y,W-M,y);y+=0.5;
- rowY(y+1,["","","","","","","TOTAL",fm(T.krg),fm(T.ton),"","",rp(T.tag),rp(T.mut),rp(T.f),rp(T.bay),""],true);
+ rowY(y+1,["","","","","","TOTAL",fm(T.krg),fm(T.ton),"",rp(T.tag),rp(T.mut)],true);
  y+=8;
  doc.setFont("helvetica","bold");doc.setFontSize(9);
  doc.text("Jumlah pengiriman: "+data.length,M,y);y+=5;
- doc.text("Total tagihan + mutasi: "+rp(T.tag+T.mut),M,y);y+=5;
- doc.text("Sudah dibayar: "+rp(T.bay),M,y);y+=5;
- doc.text("Sisa tagihan periode: "+rp(T.tag+T.mut-T.bay),M,y);
+ doc.text("Total tagihan + mutasi: "+rp(T.tag+T.mut),M,y);
  const nama="Laporan-Transaksi-"+BLN[S.bln]+"-"+(S.half==1?"1-15":"16-akhir")+"-"+S.year+".pdf";
  await bagikanPDF(doc,nama,"Laporan Transaksi "+trxPeriode(),mode);
 }
-function tabelTransaksi(){const kol=trxKolom(),data=trxRows(),t=document.getElementById("tb");
- let T={krg:0,ton:0,tag:0,mut:0,f:0,bay:0};
- const th=kol.map(c=>`<th style="padding:4px 6px;white-space:nowrap;text-align:${c[2]=="r"?"right":"left"}">${c[0]}</th>`).join("");
- const tr=data.map((e,i)=>{const c=calc(e);T.krg+=num(e.karung);T.ton+=c.ton;T.tag+=c.tag;T.mut+=num(e.mutasi);T.f+=num(e.f);T.bay+=num(e.bayar);
-  return "<tr>"+kol.map(k=>`<td style="padding:4px 6px;border-bottom:1px solid #24463d;white-space:nowrap;text-align:${k[2]=="r"?"right":"left"}">${esc(k[3](e,i))}</td>`).join("")+"</tr>"}).join("");
- document.getElementById("tbt").textContent=trxJudul()+" · "+trxPeriode();
- document.getElementById("tbc").innerHTML=`<table style="border-collapse:collapse;font-size:13px"><thead><tr>${th}</tr></thead><tbody>${tr}</tbody><tfoot><tr style="font-weight:700"><td colspan="7" style="padding:6px">TOTAL (${data.length} pengiriman)</td><td style="padding:6px;text-align:right">${fm(T.krg)}</td><td style="padding:6px;text-align:right">${fm(T.ton)}</td><td colspan="2"></td><td style="padding:6px;text-align:right">${rp(T.tag)}</td><td style="padding:6px;text-align:right">${rp(T.mut)}</td><td style="padding:6px;text-align:right">${rp(T.f)}</td><td style="padding:6px;text-align:right">${rp(T.bay)}</td><td></td></tr></tfoot></table>`;
- t.showModal()}
 function vLap(){const {N,Y}=lapVal(),kn=N.pembayaran-N.pajak-N.ongkos-N.fee-N.operasional,tp=Y.pendapatan+Y.sewa+Y.mutasi+Y.p10,ky=tp-Y.biaya;
  const ln=(l,v)=>`<div class="ln"><span>${l}</span><span>${rp(v)}</span></div>`;
  const adj=(k,l)=>`<div class="ln"><span>${l}</span><input type="text" inputmode="text" value="${num((CFG.adj||{})[k])}" ${RO?"disabled":""} onchange="setA('${k}',this.value)"></div>`;
