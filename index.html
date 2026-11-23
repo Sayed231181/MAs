@@ -25,8 +25,9 @@ main{padding:12px 14px;max-width:640px;margin:0 auto}
 .pl{background:var(--cd);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:10px;font:inherit;width:100%;margin-bottom:8px}
 h2{font-size:15px;margin:16px 0 8px}
 .ln{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);font-size:16px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;grid-auto-flow:dense}
-.grid>.sum,.grid>.cd,.grid>h2,.grid>.ln.t,.grid>.wide{grid-column:1/-1}
+.grid{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:10px}
+.grid>*{width:calc(50% - 5px)}
+.grid>.sum,.grid>.cd,.grid>h2,.grid>.wide{width:100%}
 .grid .ln{flex-direction:column;align-items:flex-start;gap:4px;padding:12px;background:var(--cd);border:0;border-radius:16px;font-size:14px;color:var(--mu)}
 .grid .ln>span:last-child{font-size:20px;font-weight:700;color:var(--tx)}
 .grid .ln input{width:100%;text-align:left;font-size:18px}
@@ -44,7 +45,7 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 .btns{display:flex;gap:8px}.btns button{flex:1;padding:12px;border-radius:8px;border:1px solid var(--bd);font:inherit;background:var(--bg);color:var(--tx)}.btns .p{background:var(--nv);color:#fff;border:0;font-weight:600;flex:2}
 #toast{position:fixed;left:14px;right:14px;bottom:calc(130px + env(safe-area-inset-bottom,0px));background:#14212b;color:#fff;padding:10px 12px;border-radius:8px;display:none;z-index:9}
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head><body>
-<header><img id="hlogo" alt="" style="display:block;margin:0 auto 8px;height:64px;background:#fff;border-radius:10px;padding:3px"><div class="top"><div><h1>MAS Ekspedisi</h1><div style="font-size:13px;color:#9fb8ae">PT. Mitra Abadi Safa</div></div><span id="st"></span></div>
+<header><div class="top"><div><h1>MAS Ekspedisi</h1><div style="font-size:13px;color:#9fb8ae">PT. Mitra Abadi Safa</div></div><div style="display:flex;align-items:center;gap:10px"><img id="hlogo" alt="" style="height:52px;background:#fff;border-radius:8px;padding:2px"><span id="st"></span></div></div>
 <div class="ctl" id="ctl"><select id="sy" style="max-width:110px"><option value="2026">2026</option><option value="2027">2027</option><option value="2028">2028</option><option value="2029">2029</option><option value="2030">2030</option></select><select id="sb"></select><select id="sh"><option value="1">Tgl 1–15</option><option value="2">Tgl 16–akhir</option></select></div></header>
 <main id="app"></main><div id="toast"></div>
 <button class="fab" id="fab" onclick="S.tab=='bms'?openG():openF()" aria-label="Tambah">+</button>
