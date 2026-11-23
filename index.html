@@ -221,10 +221,17 @@ async function laporanTransaksi(mode){
  if(y>185){doc.addPage();y=head()}
  doc.setDrawColor(20,70,50);doc.line(M,y,W-M,y);y+=0.5;
  rowY(y+1,["","","","","","TOTAL",fm(T.krg),fm(T.ton),"",rp(T.tag),rp(T.mut)],true);
- y+=8;
- doc.setFont("helvetica","bold");doc.setFontSize(9);
- doc.text("Jumlah pengiriman: "+data.length,M,y);y+=5;
- doc.text("Total tagihan + mutasi: "+rp(T.tag+T.mut),M,y);
+ y+=8; if(y>135){doc.addPage();y=34}
+ const yT=y;
+ doc.setFont("helvetica","bold");doc.setFontSize(18);
+ doc.text("Jumlah pengiriman: "+data.length,M,yT);
+ doc.text("Total tagihan + mutasi: "+rp(T.tag+T.mut),M,yT+10);
+ const xc=W-M-45,tgl=new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+ doc.setFont("helvetica","normal");doc.setFontSize(10);
+ doc.text("LHOKSEUMAWE, "+tgl,xc,yT,{align:"center"});
+ doc.text("HORMAT SAYA",xc,yT+6,{align:"center"});
+ doc.addImage(LOGO,"JPEG",xc-13,yT+9,26,18.4);
+ doc.setFont("helvetica","bold");doc.setFontSize(10);doc.text("SAYED FAJRIADI",xc,yT+32,{align:"center"});
  const nama="Laporan-Transaksi-"+BLN[S.bln]+"-"+(S.half==1?"1-15":"16-akhir")+"-"+S.year+".pdf";
  await bagikanPDF(doc,nama,"Laporan Transaksi "+trxPeriode(),mode);
 }
