@@ -123,7 +123,7 @@ async function laporanKeuangan(mode){
  const t7=0.5*t6;
  const t8=s?jn(s,"Ambilan Abang Adi"):0;
  const t9=t7-t8+aaInfo(b,h).pv;
- const t10=0.5*t6+0.2*t5+sewaPeriode(b,h);
+ const t10=saldoPeriode(b,h).total;
  const doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
  const R2=v=>rp(v);
  doc.addImage(LOGO,"JPEG",15,8,40,28.2);
