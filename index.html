@@ -54,7 +54,7 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 <dialog id="dlg"><b id="ft"></b> <button id="baru" onclick="transaksiBaru()" style="float:right;padding:6px 12px;border:0;border-radius:10px;background:#2c5b4e;color:#fff;font-weight:700">Transaksi baru</button>
 <div class="two"><div><label>Tanggal</label><input type="date" id="f_tgl"></div><div><label>Pengirim</label><select id="f_pengirim" onchange="pengirimCek()"></select><input id="f_pengirim2" placeholder="ketik nama pengirim" style="display:none;margin-top:6px"></div></div>
 <div class="two" id="pabrikrow" style="display:none"><div><label>Pabrik pakan (pilih atau ketik)</label><input id="f_pabrik" list="dpab"></div><div></div></div>
-<div class="two"><div><label>Plat mobil</label><input id="f_plat" list="dp" oninput="autoS()"></div><div><label>Nama sopir</label><input id="f_sopir"></div></div>
+<div class="two"><div><label>Plat mobil</label><input id="f_plat" list="dp" oninput="autoS()"></div><div><label>Nama sopir</label><input id="f_sopir" list="dsop"></div></div>
 <div class="two"><div><label>Harga per kg (Rp)</label><input type="text" inputmode="text" id="f_harga" oninput="prev()"></div><div><label>Ongkos per kg (Rp)</label><input type="text" inputmode="text" id="f_d"></div></div>
 <div class="two"><div><label>Biaya mutasi (Rp)</label><input type="text" inputmode="text" id="f_mutasi" oninput="prev()"></div><div><label>Mobil Yed (Rp)</label><input type="text" inputmode="text" id="f_f"></div></div>
 <label style="margin-top:10px;font-weight:700">Isi setiap pengiriman</label>
@@ -62,7 +62,7 @@ dialog input,dialog select{width:100%;padding:9px;border:1px solid var(--bd);bor
 <label>Jumlah karung</label><input type="text" inputmode="text" id="f_karung" oninput="prev()">
 <label>Keterangan</label><input id="f_ket"><div class="pv" id="pv"></div>
 <div class="btns"><button id="del" onclick="hapus()">Hapus</button><button onclick="dlg.close()">Batal</button><button class="p" onclick="simpan()">Simpan</button></div>
-<datalist id="dm"></datalist><datalist id="dt"></datalist><datalist id="dp"></datalist><datalist id="dpab"><option>PHOKPHAN</option><option>NEW HOPE</option><option>MALINDO</option><option>INDO JAYA</option><option>MABAR</option><option>GOLD COIN</option></datalist></dialog>
+<datalist id="dm"></datalist><datalist id="dt"></datalist><datalist id="dp"></datalist><datalist id="dsop"></datalist><datalist id="dpab"><option>PHOKPHAN</option><option>NEW HOPE</option><option>MALINDO</option><option>INDO JAYA</option><option>MABAR</option><option>GOLD COIN</option></datalist></dialog>
 <dialog id="dg"><b id="gt"></b>
 <label>Tanggal (boleh kosong)</label><input type="date" id="g_tgl">
 <label>Jenis</label><select id="g_jenis"></select>
@@ -110,7 +110,41 @@ function vHome(){const b=S.bln,h=S.half,p=P["BMR-"+b+"-"+h],q=sums((p&&p.rows)||
  return `<div class="sum" style="padding:20px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">PERIODE ${per.toUpperCase()}</div><div style="font-size:34px;font-weight:800;margin:8px 0 2px">${rp(q.tag+q.mut)}</div><div style="font-size:14px;color:#9fb8ae">Total tagihan ke PT periode ini</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">${t(fm(q.ton/30),"Jumlah truk")}${t(`${fm(q.ton)} ton`,`${fm(q.krg)} karung`)}${t(rp(kasInfo(b,h).ak),"Saldo Rekening")}${t(rp(si.akhir),"Sisa tagihan PT")}</div><button onclick="openF()" style="width:100%;padding:16px;border:0;border-radius:16px;background:var(--am);color:#1b1200;font-size:18px;font-weight:700">+ Catat pengiriman</button><button onclick="openG()" style="width:100%;padding:16px;border:0;border-radius:16px;margin-top:10px;background:#2c5b4e;color:#fff;font-size:18px;font-weight:700">+ Catat keuangan</button></div><div class="sum" style="margin-top:12px;padding:18px"><div style="font-size:14px;letter-spacing:.5px;color:#9fb8ae;font-weight:700">SEPANJANG ${S.year}</div><div class="ln" style="font-size:16px"><span>Pengiriman</span><span>${n} (${fm(ton)} ton)</span></div><div class="ln" style="font-size:16px"><span>Total tagihan PT</span><span>${rp(tag)}</span></div><div class="ln" style="font-size:16px"><span>Sudah dibayar PT</span><span>${rp(dibayar)}</span></div><div class="ln t" style="font-size:16px"><span>Sisa tagihan</span><span>${rp(sisaAll)}</span></div></div>`}
 function vBmr(){const es=rows("BMR").slice().sort((a,b)=>(b.tgl||"").localeCompare(a.tgl||"")),s=sums(es),si=sisaInfo(S.bln,S.half);
  return `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"><button class="pl" onclick="laporanTransaksi(false)">Lihat PDF</button><button class="pl" onclick="laporanTransaksi(2)">Unduh PDF</button><button class="pl" onclick="laporanTransaksi(true)">Kirim via WA</button></div><div class="sum"><div style="color:#cfd9e4;font-size:13px">Sisa tagihan BMR (kumulatif) · ${BLN[S.bln]} ${S.half==1?"1–15":"16–akhir"}</div><div class="big">${rp(si.akhir)}</div><div class="g"><span>Pengiriman <b>${es.length}</b></span><span>Karung <b>${fm(s.krg)}</b></span><span>Berat <b>${fm(s.ton)} ton</b></span><span>Jumlah truk <b>${fm(s.ton/30)}</b></span><span>Tagihan <b>${rp(s.tag)}</b></span><span>Mutasi <b>${rp(s.mut)}</b></span><span>Dibayar <b>${rp(si.bay)}</b></span><span>Sisa sebelumnya <b>${rp(si.pv)}</b></span><span>Pajak 0,5% <b>${rp(si.pj)}</b></span></div>${tagihanPeriodeHtml()}</div>`+pin("BMR","bayar","Pembayaran periode ini (manual, mengurangi sisa, menambah kas rek)")+`<div class="ln"><span>Pajak 0,5% periode ini (otomatis dari tagihan, mengurangi sisa, masuk Neraca)</span><span>${rp(pajakOf(S.bln,S.half))}</span></div>`+(es.length?es.map(card).join(""):`<div class="empty">Belum ada pengiriman di periode ini.${RO?"":"<br>Ketuk + untuk menambah."}</div>`)}
-function vBms(){return '<div class="grid">'+vBmsIn()+'</div>'}
+function vBms(){return '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"><button class="pl" onclick="laporanKeuangan(false)">Lihat PDF</button><button class="pl" onclick="laporanKeuangan(2)">Unduh PDF</button><button class="pl" onclick="laporanKeuangan(true)">Kirim via WA</button></div><div class="grid">'+vBmsIn()+'</div>'}
+async function laporanKeuangan(mode){
+ if(!window.jspdf){alert("Library PDF belum dimuat. Periksa koneksi internet lalu coba lagi.");return}
+ const b=S.bln,h=S.half,p=P["BMR-"+b+"-"+h],s=P["BMS-"+b+"-"+h],R=(p&&p.rows)||[],q=sums(R);
+ const t1=q.tag;
+ const t2=R.reduce((a,e)=>a+e.karung/20*1000*num(e.d),0);
+ const t3=s?jn(s,"Biaya operasional ekspedisi"):0;
+ const t4=trukOf(b,h)*FEEPT;
+ const t5=t1-t2-t3-t4;
+ const t6=0.8*t5;
+ const t7=0.5*t6;
+ const t8=s?jn(s,"Ambilan Abang Adi"):0;
+ const t9=t7-t8+aaInfo(b,h).pv;
+ const t10=0.5*t6+0.2*t5+sewaPeriode(b,h);
+ const doc=new window.jspdf.jsPDF({unit:"mm",format:"a4"});
+ const R2=v=>rp(v);
+ doc.addImage(LOGO,"JPEG",15,8,40,28.2);
+ doc.setTextColor(0,90,50);doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("PT. MITRA ABADI SAFA",15,41);doc.setTextColor(0,0,0);
+ doc.setFontSize(14);doc.text("LAPORAN KEUANGAN PERIODE",105,52,{align:"center"});
+ doc.setFontSize(11);doc.text(trxPeriode(),105,59,{align:"center"});
+ let y=76;
+ const line=(n,l,v,b2)=>{doc.setFont("helvetica",b2?"bold":"normal");doc.setFontSize(11);doc.text(n+".  "+l,15,y);doc.text(v,195,y,{align:"right"});y+=8};
+ line("1","Total tagihan periode ini",R2(t1));
+ line("2","Total ongkos per kilo dalam satu periode",R2(t2));
+ line("3","Total biaya operasional ekspedisi",R2(t3));
+ line("4","Total bagi hasil PT",R2(t4));
+ line("5","Keuntungan",R2(t5),true);
+ line("6","Keuntungan bersih",R2(t6),true);
+ line("7","Hak Abang Adi",R2(t7),true);
+ line("8","Ambilan Abang Adi",R2(t8));
+ line("9","Saldo Abang Adi",R2(t9),true);
+ line("10","Hak YED",R2(t10),true);
+ const nama="Laporan-Keuangan-"+BLN[b]+"-"+(h==1?"1-15":"16-akhir")+"-"+S.year+".pdf";
+ await bagikanPDF(doc,nama,"Laporan Keuangan "+trxPeriode(),mode);
+}
 function tambahKasRow(){const s=P[key("BMS")]||{},L=(s.tambahList||[]).slice().sort((a,b)=>(b.tgl||"").localeCompare(a.tgl||"")),tot=L.reduce((a,x)=>a+num(x.jumlah),0)+num(s.tambahKas);const rows=L.map(x=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)"><span>${fd(x.tgl)} ${esc(x.ket||"")}</span><span style="display:flex;gap:8px;align-items:center"><b>${rp(x.jumlah)}</b><button ${RO?"disabled":""} onclick="removeTambahKas('${x.id}')" style="border:0;background:none;color:var(--bad);font-size:18px">✕</button></span></div>`).join("");return `<div class="ln" style="display:block"><div style="margin-bottom:8px">Penambahan saldo kas rek (manual)</div>${rows||'<div class="mu">Belum ada penambahan.</div>'}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"><input id="tk_tgl" type="date" style="flex:1;min-width:130px"><input id="tk_ket" placeholder="keterangan" style="flex:2;min-width:140px"><input id="tk_jml" type="text" inputmode="text" placeholder="bisa minus" placeholder="jumlah" style="flex:1;min-width:120px"><button ${RO?"disabled":""} onclick="addTambahKas()" style="padding:0 16px;border:0;border-radius:12px;background:var(--am);color:#1b1200;font-weight:700">Tambah</button></div><div style="margin-top:8px;font-weight:700">Total penambahan: ${rp(tot)}</div></div>`}
 async function mutField(t,k,fn){if(!db||RO||busy)return false;busy=true;try{const ref=db.doc(PC()+"/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur[k]=fn(cur[k]||[]);await ref.set(cur);return true}catch(e){toast("Gagal menyimpan ("+(e.code||"error")+").");return false}finally{busy=false}}
 async function addTambahKas(){const j=num(document.getElementById("tk_jml").value);if(!j){alert("Isi jumlah.");return}const e={id:"t"+Date.now().toString(36),tgl:document.getElementById("tk_tgl").value||"",ket:document.getElementById("tk_ket").value.trim(),jumlah:j};if(await mutField("BMS","tambahList",L=>[...L,e])){document.getElementById("tk_jml").value="";document.getElementById("tk_ket").value=""}}
@@ -254,10 +288,12 @@ function pengirimOpsi(cur){const set=new Set(["MEDAN"]);Object.values(P).forEach
  const sel=$("#f_pengirim");sel.innerHTML=list.map(n=>`<option value="${n.replace(/"/g,"&quot;")}">${n}</option>`).join("")+'<option value="LAINNYA">LAINNYA (ketik manual)</option>';
  if(cur&&list.includes(cur)){sel.value=cur;$("#f_pengirim2").value=""}else if(cur){sel.value="LAINNYA";$("#f_pengirim2").value=cur}else{sel.value=list[0]||"LAINNYA";$("#f_pengirim2").value=""}
  pengirimCek()}
+function listOpsi(){const pl=new Set(),so=new Set();Object.values(P).forEach(x=>{if(x.t=="BMR")(x.rows||[]).forEach(r=>{if(r.plat)pl.add(String(r.plat).trim());if(r.sopir)so.add(String(r.sopir).trim())})});
+ const fill=(id,set)=>{const el=document.getElementById(id);if(el)el.innerHTML=[...set].filter(Boolean).sort().map(v=>`<option value="${v.replace(/"/g,"&quot;")}">`).join("")};fill("dp",pl);fill("dsop",so)}
 function pengirimVal(){const v=$("#f_pengirim").value;return v==="LAINNYA"?$("#f_pengirim2").value.trim():v}
 function pengirimCek(){const l=$("#f_pengirim").value==="LAINNYA";$("#f_pengirim2").style.display=l?"":"none";pabrikCek()}
 function pabrikCek(){const m=/MEDAN/i.test(($("#f_pengirim")||{}).value||"");const r=$("#pabrikrow");if(r)r.style.display=m?"":"none"}
-function openF(id){if(RO)return;S.edit=id||null;const sh=JSON.parse(localStorage.getItem("mbs_shared")||"{}");const base=id?(rows("BMR").find(x=>x.id==id)||{}):{tgl:todayISO(),pengirim:sh.pengirim||"",pabrik:sh.pabrik||"",plat:sh.plat||"",sopir:sh.sopir||"",harga:sh.harga??"",d:sh.d??"",mutasi:sh.mutasi??"",f:sh.f??""};F.forEach(k=>$("#f_"+k).value=base[k]??"");pengirimOpsi(base.pengirim);pabrikCek();$("#del").style.display=id?"":"none";$("#baru").style.display=id?"none":"";$("#ft").textContent=id?"Ubah pengiriman":"Pengiriman baru";prev();dlg.showModal()}
+function openF(id){if(RO)return;S.edit=id||null;const sh=JSON.parse(localStorage.getItem("mbs_shared")||"{}");const base=id?(rows("BMR").find(x=>x.id==id)||{}):{tgl:todayISO(),pengirim:sh.pengirim||"",pabrik:sh.pabrik||"",plat:sh.plat||"",sopir:sh.sopir||"",harga:sh.harga??"",d:sh.d??"",mutasi:sh.mutasi??"",f:sh.f??""};F.forEach(k=>$("#f_"+k).value=base[k]??"");pengirimOpsi(base.pengirim);listOpsi();pabrikCek();$("#del").style.display=id?"":"none";$("#baru").style.display=id?"none":"";$("#ft").textContent=id?"Ubah pengiriman":"Pengiriman baru";prev();dlg.showModal()}
 function autoS(){const p=PLAT.find(x=>x[0].toLowerCase()==$("#f_plat").value.trim().toLowerCase());if(p&&!$("#f_sopir").value)$("#f_sopir").value=p[1]}
 function vals(){const e={};F.forEach(k=>e[k]=$("#f_"+k).value.trim());["karung","harga","mutasi","d","f"].forEach(k=>e[k]=num(e[k]));return e}
 function prev(){const e=vals(),c=calc(e);$("#pv").innerHTML=`${fm(c.ton)} ton (${fm(c.kg)} kg)<br>Tagihan ${rp(c.tag)} · Total ${rp(c.total)}`}
