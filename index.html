@@ -84,7 +84,7 @@ const now=new Date();
 let db=null,RO=false,ready=false,busy=false,P={},CFG={neraca:{},yed:{}};
 let S={tab:"home",year:Math.min(2030,Math.max(2026,now.getFullYear())),bln:now.getFullYear()==2026?now.getMonth():0,half:now.getDate()<=15?1:2,edit:null};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const num=v=>parseFloat(v)||0,rp=n=>"Rp "+Math.round(n||0).toLocaleString("id-ID"),fm=n=>(n||0).toLocaleString("id-ID",{maximumFractionDigits:2});
+const num=v=>{if(typeof v==="number")return isFinite(v)?v:0;if(v==null||v==="")return 0;const t=String(v).trim().replace(/\./g,"").replace(/,/g,".");const n=parseFloat(t);return isNaN(n)?0:n},rp=n=>"Rp "+Math.round(n||0).toLocaleString("id-ID"),fm=n=>(n||0).toLocaleString("id-ID",{maximumFractionDigits:2});
 const fd=t=>t?t.slice(8)+"/"+t.slice(5,7):"–";
 const calc=e=>{const ton=e.karung/20,kg=ton*1000,tag=kg*e.harga,total=tag+e.mutasi;return{ton,kg,tag,total,sisa:total-num(e.bayar)}};
 const sums=es=>es.reduce((a,e)=>{const c=calc(e);a.krg+=e.karung;a.ton+=c.ton;a.tag+=c.tag;a.mut+=e.mutasi;a.bay+=num(e.bayar);a.sisa+=c.sisa;return a},{krg:0,ton:0,tag:0,mut:0,bay:0,sisa:0});
@@ -96,12 +96,15 @@ async function mut(t,fn){
  try{const ref=db.doc(PC()+"/"+key(t)),s=await ref.get();const cur=s.exists?s.data():{t,b:S.bln,h:S.half,rows:[]};cur.rows=fn(cur.rows||[]);await ref.set(cur);return true}
  catch(e){toast("Gagal menyimpan ("+(e.code||"error")+"). Coba lagi.");return false}finally{busy=false}}
 function tab(t){S.tab=t;render();scrollTo(0,0)}
+function fmtInp(el){if(!el||el.type==="date")return;const raw=String(el.value||"");const neg=raw.trim().startsWith("-");const d=raw.replace(/[^0-9]/g,"");if(!d){el.value=neg?"-":"";return}const f=d.replace(/\B(?=(\d{3})+(?!\d))/g,".");const out=(neg?"-":"")+f;if(el.value!==out)el.value=out}
+function fmtAll(){document.querySelectorAll('input[inputmode="text"]').forEach(fmtInp)}
+document.addEventListener("input",e=>{if(e.target&&e.target.matches&&e.target.matches('input[inputmode="text"]'))fmtInp(e.target)});
 function render(){
  $("#st").textContent=RO?"Hanya baca":db?(ready?(navigator.onLine?"Online · tersinkron":"Offline · tersimpan di HP"):"Menghubungkan…"):"Belum tersambung";
  ["home","bmr","bms","lap","bak"].forEach(k=>$("#n_"+k).className=S.tab==k?"on":"");
  const pr=S.tab=="bmr"||S.tab=="bms"||S.tab=="home";$("#ctl").style.display=pr?"":"none";$("#fab").style.display=(S.tab=="bmr"||S.tab=="bms")&&!RO?"":"none";
  $("#sb").value=S.bln;$("#sh").value=S.half;
- $("#app").innerHTML=({home:vHome,bmr:vBmr,bms:vBms,lap:vLap,bak:vBak})[S.tab]()}
+ $("#app").innerHTML=({home:vHome,bmr:vBmr,bms:vBms,lap:vLap,bak:vBak})[S.tab]();fmtAll()}
 function card(e){const c=calc(e);return `<div class="cd" onclick="openF('${e.id}')"><div class="r"><b>${esc(e.merek||"–")}</b><span class="mu">${fd(e.tgl)}</span></div><div class="mu">${esc((e.pengirim||"–")+(e.pabrik?" ("+e.pabrik+")":""))} → ${esc(e.tujuan||"–")}</div><div class="mu">${esc(e.plat)} ${e.sopir?"("+esc(e.sopir)+")":""}</div>${num(e.d)?"":'<div class="bad" style="font-size:12px;margin-top:4px">⚠ Ongkos per kg belum diisi</div>'}<div class="r g2"><span>${fm(e.karung)} karung = ${fm(c.ton)} ton</span><b>${rp(c.total)}</b></div>${e.bayar?`<div class="r"><span class="mu">Dibayar ${rp(e.bayar)}</span></div>`:""}</div>`}
 function vHome(){const b=S.bln,h=S.half,p=P["BMR-"+b+"-"+h],q=sums((p&&p.rows)||[]),si=sisaInfo(b,h),kn=keuntunganRinci(b,h),per=`${h==1?"1–15":"16–31"} ${BLN[b]} ${S.year}`;
  const all=Object.values(P).filter(x=>x.t=="BMR");let n=0,ton=0,tag=0,by=0,pjAll=0;all.forEach(x=>{const z=sums(x.rows||[]);n+=(x.rows||[]).length;ton+=z.ton;tag+=z.tag+z.mut;by+=z.bay+num(x.bayar);pjAll+=pajakDoc(x)});
